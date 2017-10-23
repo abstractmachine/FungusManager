@@ -99,7 +99,7 @@ namespace Fungus
             if (managerIsPresent)
             {
                 // clean up everything in that case
-                DisableAudioListeners();
+                //DisableAudioListeners();
                 //DisableEventSystems();
                 DisableCameraTransparency();
             }

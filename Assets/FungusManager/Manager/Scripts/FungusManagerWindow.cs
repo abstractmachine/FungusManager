@@ -64,7 +64,7 @@ namespace Fungus
 
                 if (projectContainsSceneManager)
                 {
-                    string path = GetSceneManager(currentScenes);
+                    string path = GetSceneManagerPath(currentScenes);
                     LoadSceneManagerButton(path);
                 }
                 else
@@ -119,7 +119,18 @@ namespace Fungus
 
         protected void LoadFungusSceneManager(string scenePath)
         {
-            EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+            Scene managerScene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+
+            EditorSceneManager.SetActiveScene(managerScene);
+
+            Scene firstScene = EditorSceneManager.GetSceneAt(0);
+
+            if (firstScene != managerScene)
+            {
+                EditorSceneManager.MoveSceneBefore(managerScene, firstScene);
+            }
+
+            CheckForSceneManager();
         }
 
 
@@ -228,7 +239,7 @@ namespace Fungus
         }
 
 
-        string GetSceneManager(List<string> sceneAssets)
+        string GetSceneManagerPath(List<string> sceneAssets)
         {
             // is there at least one asset with the name SceneManager?
             foreach (string sceneAsset in sceneAssets)
@@ -316,7 +327,7 @@ namespace Fungus
         protected void CloseFungusSceneManager()
         {
             // first get a reference to the scene manager
-            Scene managerScene = GetSceneManager();
+            Scene managerScene = GetSceneManagerScene();
             if (!managerScene.IsValid())
             {
                 Debug.LogError("Scene Manager is already closed");
@@ -338,7 +349,7 @@ namespace Fungus
 
         #region Scenes
 
-        protected void CheckForSceneManager()
+        virtual protected void CheckForSceneManager()
         {
             sceneManagerIsLoaded = IsSceneManagerLoaded();
             sceneManagerIsActive = IsSceneManagerActive();
@@ -348,7 +359,7 @@ namespace Fungus
         protected bool IsSceneManagerLoaded()
         {
             // try to load the FungusSceneManager scene
-            Scene managerScene = GetSceneManager();
+            Scene managerScene = GetSceneManagerScene();
             // if there is a valid scene here, return true
             if (managerScene.IsValid()) return true;
             // otherwise, we're not valid (result came up empty)
@@ -359,14 +370,14 @@ namespace Fungus
         protected bool IsSceneManagerActive()
         {
             // get a reference to the scene manager
-            Scene managerScene = GetSceneManager();
+            Scene managerScene = GetSceneManagerScene();
             // check to see if the manager is the active scene
             if (EditorSceneManager.GetActiveScene() == managerScene) return true;
             return false;
         }
 
 
-        protected Scene GetSceneManager()
+        protected Scene GetSceneManagerScene()
         {
             for (int i = 0; i < EditorSceneManager.sceneCount; i++)
             {
@@ -387,6 +398,29 @@ namespace Fungus
 
             Scene nullScene = new Scene();
             return nullScene;
+        }
+
+
+        protected FungusSceneManager GetFungusSceneManagerScript()
+        {
+            for (int i = 0; i < EditorSceneManager.sceneCount; i++)
+            {
+                Scene scene = EditorSceneManager.GetSceneAt(i);
+
+                // ignore scene that just closed
+                if (!scene.IsValid() || !scene.isLoaded) continue;
+
+                foreach (GameObject go in scene.GetRootGameObjects())
+                {
+                    FungusSceneManager fungusSceneManager = go.GetComponent<FungusSceneManager>();
+                    if (fungusSceneManager != null)
+                    {
+                        return fungusSceneManager;
+                    }
+                }
+            }
+
+            return null;
         }
 
         #endregion

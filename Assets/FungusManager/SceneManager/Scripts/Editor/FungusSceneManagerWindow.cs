@@ -10,11 +10,14 @@ namespace Fungus
     {
         #region Members
 
-        private bool newScene = true;
+        private bool newSceneFoldout = true;
         private string sceneName = "SceneName";
-        private bool currentScenes = true;
+        private bool managedScenesFoldout = true;
+        private bool availableScenesFoldout = true;
 
-        private FungusSceneManager fungusSceneManager;
+        private FungusSceneManager fungusSceneManager = null;
+        private int managedSceneCount = 0;
+        private int availableSceneCount = 0;
 
         #endregion
 
@@ -63,24 +66,11 @@ namespace Fungus
 
             GUILayout.BeginVertical();
 
-            // CLOSE WINDOW
-
-            if (!sceneManagerIsActive)
-            {
-                // convert the above string into ligatures and print out into console
-                if (GUILayout.Button("Close 'SceneManager'"))
-                {
-                    CloseFungusSceneManager();
-                }
-
-                GUILayout.Space(20);
-            }
-
             // CREATE NEW SCENE
 
-            newScene = EditorGUILayout.Foldout(newScene, "New Scene");
+            newSceneFoldout = EditorGUILayout.Foldout(newSceneFoldout, "New Scene");
 
-            if (newScene)
+            if (newSceneFoldout)
             {
                 sceneName = EditorGUILayout.TextField("", sceneName);
 
@@ -90,18 +80,13 @@ namespace Fungus
                     Debug.Log("Create new scene '" + sceneName + "'");
                 }
 
-                if (GUILayout.Button("Update Scene List"))
-                {
-                    UpdateSceneList();
-                }
-
             } // if (newScene)
 
             GUILayout.Space(20);
 
-            currentScenes = EditorGUILayout.Foldout(currentScenes, "Current Scenes (" + 0 + ")");
+            managedScenesFoldout = EditorGUILayout.Foldout(managedScenesFoldout, "Current Scenes (" + managedSceneCount + ")");
 
-            if (currentScenes)
+            if (managedScenesFoldout)
             {
                 DisplayScenes();
             }
@@ -112,24 +97,22 @@ namespace Fungus
 
             GUILayout.Space(20);
 
+            GUILayout.BeginVertical();
+
+            GUILayout.Space(20);
+
+            availableScenesFoldout = EditorGUILayout.Foldout(availableScenesFoldout, "Available Scenes (" + availableSceneCount + ")");
+
+            if (availableScenesFoldout)
+            {
+                DisplayAvailableScenes();
+            }
+
+            GUILayout.EndVertical();
+
             GUILayout.EndHorizontal();
 
             // FLEXIBLE SPACE
-        }
-
-        private void DisplayScenes()
-        {
-            DisplayScene("SceneName-A");
-            DisplayScene("SceneName-B");
-            DisplayScene("SceneName-C");
-        }
-
-
-        private void DisplayScene(string sceneName)
-        {
-            GUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(sceneName);
-            GUILayout.EndHorizontal();
         }
 
         #endregion
@@ -138,9 +121,56 @@ namespace Fungus
 
         #region Scenes
 
-        private void UpdateSceneList()
+        override protected void CheckForSceneManager()
         {
+            base.CheckForSceneManager();
 
+            if (fungusSceneManager == null)
+            {
+                fungusSceneManager = GetFungusSceneManagerScript();
+            }
+
+            UpdateManagedSceneList();
+            UpdateAvailableSceneList();
+        }
+
+
+        private void UpdateManagedSceneList()
+        {
+            if (fungusSceneManager == null) return;
+
+            managedSceneCount = fungusSceneManager.scenes.Count;
+        }
+
+
+        private void DisplayScenes()
+        {
+            if (fungusSceneManager == null) return;
+
+            foreach (string scene in fungusSceneManager.scenes)
+            {
+                DisplayScene(scene);
+            }
+        }
+
+
+        private void UpdateAvailableSceneList()
+        {
+            
+        }
+
+
+        private void DisplayAvailableScenes()
+        {
+            
+        }
+
+
+        private void DisplayScene(string sceneName)
+        {
+            GUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(sceneName);
+            GUILayout.EndHorizontal();
         }
 
         #endregion

@@ -66,21 +66,6 @@ namespace Fungus
 
             GUILayout.BeginVertical();
 
-            // CLOSE WINDOW
-
-            if (!sceneManagerIsActive)
-            {
-
-                // convert the above string into ligatures and print out into console
-                if (GUILayout.Button("Close 'SceneManager'"))
-                {
-                    CloseFungusSceneManager();
-                }
-
-                GUILayout.Space(20);
-
-            }
-
             newCharacterFoldout = EditorGUILayout.Foldout(newCharacterFoldout, "New Character");
 
             if (newCharacterFoldout)
@@ -157,7 +142,7 @@ namespace Fungus
             // note if there were any changes
             bool didChange = false;
             // get the SceneManager scene reference
-            Scene managerScene = GetSceneManager();
+            Scene managerScene = GetSceneManagerScene();
             // find all the characters currently available in the SceneManager
             Character[] currentSceneCharacters = FindObjectsOfType<Character>();
             // if the amount of characters is different than the dictionary is different
