@@ -35,9 +35,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4428610539678130}
   - component: {fileID: 114745687435592066}
-  - component: {fileID: 114452216663476966}
-  - component: {fileID: 114226255690195860}
-  - component: {fileID: 114650662340919734}
   m_Layer: 0
   m_Name: Scene Transitions
   m_TagString: Untagged
@@ -102,19 +99,6 @@ Transform:
   m_Father: {fileID: 4128355927785926}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114226255690195860
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1716791911952092}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2f6487d21a03404cb21b245f0242e79, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentBlock: {fileID: 114452216663476966}
-  waitForFrames: 1
 --- !u!114 &114390575329344910
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -152,45 +136,6 @@ MonoBehaviour:
   hideCommands: []
   luaEnvironment: {fileID: 0}
   luaBindingName: flowchart
---- !u!114 &114452216663476966
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1716791911952092}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d3d73aef2cfc4f51abf34ac00241f60, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nodeRect:
-    serializedVersion: 2
-    x: 602.24866
-    y: 147.92783
-    width: 167
-    height: 40
-  tint: {r: 1, g: 1, b: 1, a: 1}
-  useCustomTint: 0
-  itemId: 24
-  blockName: FungusSceneManager
-  description: The first Scene the Manager loads on Game Start
-  eventHandler: {fileID: 114226255690195860}
-  commandList:
-  - {fileID: 114650662340919734}
---- !u!114 &114650662340919734
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1716791911952092}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58c7c59ed4f814a279c3cf71d90a132b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemId: 25
-  indentLevel: 0
-  sceneName: Start
 --- !u!114 &114745687435592066
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -214,8 +159,7 @@ MonoBehaviour:
     y: 0
     width: 0
     height: 0
-  selectedBlocks:
-  - {fileID: 114452216663476966}
+  selectedBlocks: []
   selectedCommands: []
   variables: []
   description: 

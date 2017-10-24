@@ -65,7 +65,7 @@ namespace Fungus
         }
 
 
-        protected void LoadSceneButton(string sceneName, string path)
+        protected void LoadSceneButton(string sceneName, string path, bool moveToTop = false)
         {
             GUILayout.FlexibleSpace();
             GUILayout.BeginHorizontal();
@@ -73,7 +73,8 @@ namespace Fungus
 
             if (GUILayout.Button("Load '" + sceneName + "'"))
             {
-                //LoadManagedScene(path, OpenSceneMode.Additive);
+                LoadManagedScene(path, OpenSceneMode.Additive, moveToTop);
+                return;
             }
 
             GUILayout.FlexibleSpace();
@@ -164,6 +165,19 @@ namespace Fungus
             return true;
         }
 
+
+        protected string CleanUpPath(string path)
+        {
+            // remove full data path
+            if (path.StartsWith(Application.dataPath))
+            {
+                // remove start of full data path, just take the characters after the word "Assets"
+                path = "Assets" + path.Substring(Application.dataPath.Length);
+            }
+            // return cleaned up path
+            return path;
+        }
+
         #endregion
 
 
@@ -205,6 +219,44 @@ namespace Fungus
         }
 
 
+        protected string GetPrefabPath(string prefabName)
+        {
+            // if necessary
+            if (!prefabName.EndsWith(".prefab"))
+            {
+                // add .prefab at the end of this name
+                prefabName += ".prefab";
+            }
+            // this is the list of valid folders we can search in
+            List<string> searchableFolders = new List<string>();
+            // get the list of all the root folders in our project
+            string[] rootFolders = Directory.GetDirectories(Application.dataPath + "/");
+            // go through each folder
+            foreach (string subfolder in rootFolders)
+            {
+                // ignore these subfolders
+                if (subfolder.EndsWith("Fungus") || subfolder.EndsWith("FungusManager")) continue;
+                // ok, this is valid
+                searchableFolders.Add("Assets/" + new DirectoryInfo(subfolder).Name);
+            }
+            // look inside those valid (non-Fungus) folders for Scenes
+            string[] foundScenes = AssetDatabase.FindAssets("t:Prefab", searchableFolders.ToArray());
+            // go through each scene
+            foreach (string scene in foundScenes)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(scene);
+                // is this the one we're looking for?
+                if (path.EndsWith(prefabName))
+                {
+                    // send back path without the long complicated root path
+                    return CleanUpPath(path);
+                }
+            }
+
+            return "";
+        }
+
+
         protected string GetSceneAssetPath(string sceneName)
         {
             // this is the list of valid folders we can search in
@@ -243,8 +295,30 @@ namespace Fungus
             return false;
         }
 
+
+        protected int SceneManagerIndex()
+        {
+            // first find the index of the scene manager
+            int sceneManagerIndex = -1;
+            // go through each scene
+            for (int i = 0; i < EditorSceneManager.sceneCount; i++)
+            {
+                Scene scene = EditorSceneManager.GetSceneAt(i);
+                // if this is the scene manager
+                if (scene.name.EndsWith("SceneManager"))
+                {
+                    // return this index
+                    return i;
+                }
+            }
+            // return the index
+            return sceneManagerIndex;
+        }
+
         #endregion
 
+
+        #region GetScenes
 
         protected Scene GetLoadedSceneByName(string sceneName)
         {
@@ -304,8 +378,10 @@ namespace Fungus
             return null;
         }
 
+        #endregion
 
-        #region Load/Unload
+
+        #region Loading
 
         protected void LoadManagedScene(string scenePath, OpenSceneMode sceneMode, bool moveToTop = false)
         {
@@ -314,13 +390,19 @@ namespace Fungus
             EditorSceneManager.SetActiveScene(scene);
 
             Scene firstScene = EditorSceneManager.GetSceneAt(0);
-
             if (moveToTop && firstScene != scene)
             {
-                EditorSceneManager.MoveSceneBefore(scene, firstScene);
+                MoveSceneToTop(scene);
             }
 
             CheckScenes();
+        }
+
+
+        protected void MoveSceneToTop(Scene scene)
+        {
+            Scene firstScene = EditorSceneManager.GetSceneAt(0);
+            EditorSceneManager.MoveSceneBefore(scene, firstScene);
         }
 
 

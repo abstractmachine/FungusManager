@@ -55,7 +55,7 @@ GameObject:
   - component: {fileID: 4171833241811448}
   - component: {fileID: 114715267239011208}
   m_Layer: 0
-  m_Name: FungusSceneManager
+  m_Name: SceneManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

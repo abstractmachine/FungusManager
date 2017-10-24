@@ -118,6 +118,7 @@ namespace Fungus
         {
             // get all the listeners
             EventSystem[] eventSystems = GameObject.FindObjectsOfType<EventSystem>();
+            //EventSystem[] eventSystems = GetComponents<EventSystem>();
 
             // if there are no EventSystems
             if (eventSystems.Length == 0)

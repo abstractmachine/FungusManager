@@ -8,13 +8,16 @@ using System.Collections.Generic;
 
 namespace Fungus
 {
-
     public class FungusSceneManagerWindow : FungusManagerWindow
     {
         #region Members
 
-        //private bool newSceneFoldout = true;
-        //private string sceneName = "SceneName";
+        private bool addHyperzoomControls = true;
+        private bool addControllerInput = true;
+        private bool createCharactersPrefab = true;
+
+        private bool newSceneFoldout = true;
+        private string sceneName = "Start";
         //private bool managedScenesFoldout = true;
 
         //private FungusSceneManager fungusSceneManager = null;
@@ -47,11 +50,13 @@ namespace Fungus
             CheckScenes();
 
             // check to see if there is at least one scene manager in the project
-            if (!projectContainsSceneManager || !projectContainsStartScene)
+            if (!projectContainsSceneManager)
             {
                 GUILayout.FlexibleSpace();
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
+
+                GUILayout.BeginVertical();
 
                 if (!projectContainsSceneManager)
                 {
@@ -62,14 +67,7 @@ namespace Fungus
                     }
                 }
 
-                if (!projectContainsStartScene)
-                {
-                    if (GUILayout.Button("Create 'Start' scene"))
-                    {
-                        CreateStartScene();
-                        return;
-                    }
-                }
+                GUILayout.EndVertical();
 
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
@@ -77,16 +75,16 @@ namespace Fungus
             }
             else
             {
-
                 if (!sceneManagerIsLoaded)
                 {
-                    LoadSceneButton("SceneManager", GetSceneAssetPath("SceneManager.unity"));
+                    // load the SceneManager and place it on top
+                    LoadSceneButton("SceneManager", GetSceneAssetPath("SceneManager.unity"), true);
                 }
 
                 // if the scene manager is not already loaded
                 if (sceneManagerIsLoaded)
                 {
-                    //DisplaySceneManager();
+                    DisplaySceneManager();
                     return;
                 }
             }
@@ -94,63 +92,131 @@ namespace Fungus
         }
 
 
-        protected void CreateStartSceneButton()
+        void GUIDrawSceneOptions()
         {
+            createCharactersPrefab = GUILayout.Toggle(createCharactersPrefab, "Create Characters prefab", GUILayout.MinWidth(80), GUILayout.MaxWidth(200));
+
+            addHyperzoomControls = GUILayout.Toggle(addHyperzoomControls, "Add Hyperzoom", GUILayout.MinWidth(80), GUILayout.MaxWidth(200));
+
+            // the joystick controller is attached to the hyperzoom
+            if (addHyperzoomControls)
+            {
+                addControllerInput = GUILayout.Toggle(addControllerInput, "Add Joystick Controller input");
+            }
         }
 
         #endregion
 
 
-        #region Create
+        #region Create New Scene
+
+        /// <summary>
+        /// Try to set the attention onto another scene than the main scene
+        /// </summary>
+       
+        void SetActiveSceneToOther()
+        {
+            int sceneManagerIndex = SceneManagerIndex();
+            // if this is not an Untitled Scene, return a new sub-scene
+            if (sceneManagerIndex > -1) // && EditorSceneManager.GetActiveScene().name != ""
+            {
+                Scene sceneMananger = GetSceneManagerScene();
+                // move scene to the top
+                if (sceneManagerIndex > 0)
+                {
+                    MoveSceneToTop(sceneMananger);
+                }
+                // 
+                for (int i = 0; i < EditorSceneManager.sceneCount; i++)
+                {
+                    Scene scene = EditorSceneManager.GetSceneAt(i);
+                    // if this is not the SceneManager
+                    if (scene != sceneMananger)
+                    {
+                        // set this scene as the active scene
+                        EditorSceneManager.SetActiveScene(scene);
+                        break;
+                    }
+                    // if (scene != sceneManager
+                }
+                // for(sceneCount
+            }
+            // if (sceneManagerIndex > -1
+        }
+
+
+        protected Scene GetCleanScene(bool isSceneManager = false)
+        {
+            // try to set the attention onto another scene than the main scene
+            SetActiveSceneToOther();
+
+            // if this is the SceneManager at 0
+            int sceneManagerIndex = SceneManagerIndex();
+            if (EditorSceneManager.sceneCount == 1 && sceneManagerIndex == 0)
+            {
+                return EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+            }
+
+            // ok, we need to return the current scene
+
+            // get access to this scene
+            Scene activeScene = EditorSceneManager.GetActiveScene();
+            // get this scene's root objects
+            GameObject[] rootObjects = activeScene.GetRootGameObjects();
+            // if this is the scene manager, we have to clean up
+            // go through each root object
+            for (int i = rootObjects.Length - 1; i >= 0; i--)
+            {
+                // reference to this root object
+                GameObject rootObject = rootObjects[i];
+                // if there is a camera here and this is the sceneManager
+                // or it's not and we're adding Hyperzoom controls (it has its own camera)
+                if ((rootObject.GetComponent<Camera>() != null) && (isSceneManager || (!isSceneManager && addHyperzoomControls)))
+                {
+                    // destroy camera
+                    DestroyImmediate(rootObject);
+                    // move on to next
+                    continue;
+                }
+                // destroy lights
+                if (isSceneManager && rootObject.GetComponent<Light>() != null) DestroyImmediate(rootObject);
+            }
+            // for
+
+            // return this current scene
+            return activeScene;
+        }
+
 
         protected void CreateFungusSceneManager()
         {
             // tell the user to select a path
-            string path = EditorUtility.SaveFolderPanel("Select a folder for the SceneManager", "Assets/", "");
+            string path = EditorUtility.SaveFolderPanel("Select a folder for the 'SceneManager' scene", "Assets/", "");
 
             // check the path
             if (!IsPathValid(path)) return;
 
             // remove full data path
-            if (path.StartsWith(Application.dataPath))
-            {
-                // remove start of full data path, just take the characters after the word "Assets"
-                path = "Assets" + path.Substring(Application.dataPath.Length);
-            }
+            path = CleanUpPath(path);
 
             // Create the SceneManager
 
-            Scene sceneManager = new Scene();
-
-            // first check to see if we are in an Untitled Scene
-            if (EditorSceneManager.GetActiveScene().name == "")
-            {
-                sceneManager = EditorSceneManager.GetActiveScene();
-                GameObject[] rootObjects = sceneManager.GetRootGameObjects();
-                for (int i = rootObjects.Length - 1; i >= 0; i--)
-                {
-                    GameObject rootObject = rootObjects[i];
-
-                    if (rootObject.GetComponent<Camera>() != null) DestroyImmediate(rootObject);
-                    else if (rootObject.GetComponent<Light>() != null) DestroyImmediate(rootObject);
-                }
-            }
-            else
-            {
-                sceneManager = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
-            }
+            // either create a new sub-scene, or erase the current scene
+            Scene sceneManager = GetCleanScene(true);
 
             // add prefabs to scene
-            GameObject fungusSceneManagerPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/FungusSceneManager.prefab", typeof(GameObject));
-            PrefabUtility.InstantiatePrefab(fungusSceneManagerPrefab, sceneManager);
+            GameObject sceneManagerPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/SceneManager.prefab", typeof(GameObject));
+            GameObject sceneManagerGameObject = PrefabUtility.InstantiatePrefab(sceneManagerPrefab, sceneManager) as GameObject;
+            // disconnect this object from the prefab (in package folder) that created it
+            PrefabUtility.DisconnectPrefabInstance(sceneManagerGameObject);
 
-            GameObject fungusFlowchartPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/Flowcharts.prefab", typeof(GameObject));
-            PrefabUtility.InstantiatePrefab(fungusFlowchartPrefab, sceneManager);
+            GameObject flowchartPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/Flowcharts.prefab", typeof(GameObject));
+            GameObject flowchartGameObject = PrefabUtility.InstantiatePrefab(flowchartPrefab, sceneManager) as GameObject;
+            // disconnect this object from the prefab (in package folder) that created it
+            PrefabUtility.DisconnectPrefabInstance(flowchartGameObject);
 
             // try to save
-            bool saveSuccess = EditorSceneManager.SaveScene(sceneManager, path + "/FungusSceneManager.unity", false);
-
-            if (!saveSuccess)
+            if (!EditorSceneManager.SaveScene(sceneManager, path + "/SceneManager.unity", false))
             {
                 Debug.LogWarning("Couldn't create FungusSceneManager");
             }
@@ -160,53 +226,78 @@ namespace Fungus
         }
 
 
-        protected void CreateStartScene()
+        void CreateNewScene(string sceneName)
         {
-            //Scene startScene = new Scene();
+            // if the scene exists already
+            if (DoesSceneExist(sceneName))
+            {
+                Debug.LogWarning("Scene '" + sceneName + "' already exists.");
+                return;
+            }
 
-            //// try to find the start scene
-            //string startScenePath = GetSceneAssetPath("Start.unity");
-            //if (startScenePath != "")
-            //{
-            //    startScene = EditorSceneManager.OpenScene(startScenePath);
-            //}
-            //else // Create the Start scene
-            //{
-            //    // this will verify if we need to create start scene
-            //    bool usingActiveScene = false;
-            //    // first check to see if we are in an Untitled Scene
-            //    Scene activeScene = EditorSceneManager.GetActiveScene();
-            //    if (activeScene.name == "")
-            //    {
-            //        GameObject[] rootObjects = activeScene.GetRootGameObjects();
-            //        if (rootObjects.Length <= 3 && rootObjects[0].name == "Main Camera")
-            //        {
-            //            usingActiveScene = true;
-            //            DestroyImmediate(rootObjects[0]);
-            //            startScene = activeScene;
-            //            // add stuff
-            //            // add prefabs to scene
-            //            GameObject hyperzoomPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/Hyperzoom/Prefabs/Hyperzoom.prefab", typeof(GameObject));
-            //            PrefabUtility.InstantiatePrefab(hyperzoomPrefab, startScene);
-            //            GameObject inputPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/Hyperzoom/Prefabs/Input.prefab", typeof(GameObject));
-            //            PrefabUtility.InstantiatePrefab(inputPrefab, startScene);
-            //            // try to save
-            //            bool startSaveSuccess = EditorSceneManager.SaveScene(startScene, path + "/Start.unity", false);
+            // tell the user to select a path
+            string path = EditorUtility.SaveFolderPanel("Select a folder for the '" + sceneName + "' scene", "Assets/", "");
 
-            //            if (!startSaveSuccess)
-            //            {
-            //                Debug.LogWarning("Couldn't create Start scene.");
-            //                return;
-            //            }
-            //        }
-            //    }  // if (activeName == "")
+            // check the path
+            if (!IsPathValid(path)) return;
 
-            //    if (!usingActiveScene)
-            //    {
-            //        Debug.LogWarning("Couldn't create Start scene. Create a New empty scene.");
-            //        return;
-            //    }
-            //}
+            // remove full data path
+            path = CleanUpPath(path);
+
+            // either create a new sub-scene, or erase the current scene
+            Scene startScene = GetCleanScene(false);
+
+            // add prefabs to scene
+
+            // hyperzoom is optional
+            if (addHyperzoomControls)
+            {
+                GameObject hyperzoomPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/Hyperzoom/Prefabs/Hyperzoom.prefab", typeof(GameObject));
+                GameObject hyperzoomGameObject = PrefabUtility.InstantiatePrefab(hyperzoomPrefab, startScene) as GameObject;
+
+                // controller input is optional
+                if (!addControllerInput)
+                {
+                    Joystick joystick = hyperzoomGameObject.GetComponent<Joystick>();
+                    DestroyImmediate(joystick);
+                }
+            }
+
+            if (createCharactersPrefab)
+            {
+                // this is the path to the prefab
+                string charactersPrefabPath = "Assets/FungusManager/CharacterManager/Prefabs/FungusCharacters.prefab";
+                // find out if there already is a prefab in our project
+                string projectCharactersPrefabPath = GetPrefabPath("FungusCharacters");
+                // if we found something
+                if (projectCharactersPrefabPath != "")
+                {
+                    // use this prefab path instead of the one in the project path
+                    charactersPrefabPath = projectCharactersPrefabPath;
+                }
+
+                GameObject charactersPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(charactersPrefabPath, typeof(GameObject));
+                GameObject charactersGameObject = PrefabUtility.InstantiatePrefab(charactersPrefab, startScene) as GameObject;
+
+                // if this is a new prefab
+                if (projectCharactersPrefabPath == "")
+                {
+                    // make sure this prefab goes into the same folder at the Start scene's folder
+                    string newPrefabFolder = path + "/FungusCharacters.prefab";
+                    // save it to new position
+                    GameObject newPrefab = PrefabUtility.CreatePrefab(newPrefabFolder, charactersGameObject) as GameObject;
+                    // set this as our prefab
+                    PrefabUtility.ConnectGameObjectToPrefab(charactersGameObject, newPrefab);
+                }
+            }
+
+            // try to save
+            if (!EditorSceneManager.SaveScene(startScene, path + "/" + sceneName + ".unity", false))
+            {
+                Debug.LogWarning("Couldn't create 'Start' scene");
+            }
+
+            CheckScenes();
         }
 
         #endregion
@@ -214,82 +305,77 @@ namespace Fungus
 
         #region Display
 
-        //private void DisplaySceneManager()
-        //{
-        //    int startingCount = managedScenes.Count;
+        private void DisplaySceneManager()
+        {
+            // spacing
 
-        //    // spacing
+            GUILayout.Space(20);
 
-        //    GUILayout.Space(20);
+            // scene controls
 
-        //    // scene controls
+            GUILayout.BeginHorizontal();
 
-        //    GUILayout.BeginHorizontal();
+            GUILayout.Space(20);
 
-        //    GUILayout.Space(20);
+            GUILayout.BeginVertical();
 
-        //    GUILayout.BeginVertical();
+            // CREATE NEW SCENE
 
-        //    // CREATE NEW SCENE
+            newSceneFoldout = EditorGUILayout.Foldout(newSceneFoldout, "New Scene");
 
-        //    newSceneFoldout = EditorGUILayout.Foldout(newSceneFoldout, "New Scene");
+            if (newSceneFoldout)
+            {
+                sceneName = EditorGUILayout.TextField("", sceneName, GUILayout.ExpandWidth(false));
 
-        //    if (newSceneFoldout)
-        //    {
-        //        sceneName = EditorGUILayout.TextField("", sceneName, GUILayout.ExpandWidth(false));
+                // convert the above string into ligatures and print out into console
+                if (GUILayout.Button("Create New Scene", GUILayout.ExpandWidth(false)))
+                {
+                    CreateNewScene(sceneName);
+                    return;
+                }
 
-        //        // convert the above string into ligatures and print out into console
-        //        if (GUILayout.Button("Create New Scene", GUILayout.ExpandWidth(false)))
-        //        {
-        //            NewScene(sceneName);
-        //        }
+                GUIDrawSceneOptions();
 
-        //    } // if (newScene)
+            } // if (newScene)
 
-        //    GUILayout.Space(20);
+            GUILayout.Space(20);
 
-        //    // convert the above string into ligatures and print out into console
-        //    if (GUILayout.Button("Update scenes", GUILayout.ExpandWidth(false)))
-        //    {
-        //        UpdateScenes();
-        //    }
+            //// convert the above string into ligatures and print out into console
+            //if (GUILayout.Button("Update scenes", GUILayout.ExpandWidth(false)))
+            //{
+            //    UpdateScenes();
+            //}
 
-        //    managedScenesFoldout = EditorGUILayout.Foldout(managedScenesFoldout, "Current Scenes (" + managedScenes.Count + ")");
+            //managedScenesFoldout = EditorGUILayout.Foldout(managedScenesFoldout, "Current Scenes (" + managedScenes.Count + ")");
 
-        //    if (managedScenesFoldout)
-        //    {
-        //        DisplayScenes();
-        //    }
+            //if (managedScenesFoldout)
+            //{
+            //    DisplayScenes();
+            //}
 
-        //    GUILayout.EndVertical();
+            GUILayout.EndVertical();
 
-        //    GUILayout.Space(40);
+            GUILayout.Space(40);
 
-        //    GUILayout.BeginVertical();
+            GUILayout.BeginVertical();
 
-        //    GUILayout.Space(20);
+            GUILayout.Space(20);
 
-        //    //availableScenesFoldout = EditorGUILayout.Foldout(availableScenesFoldout, "Available Scenes (" + availableScenes.Count + ")");
+            ////availableScenesFoldout = EditorGUILayout.Foldout(availableScenesFoldout, "Available Scenes (" + availableScenes.Count + ")");
 
-        //    //if (availableScenesFoldout)
-        //    //{
-        //    //    DisplayAvailableScenes();
-        //    //}
+            ////if (availableScenesFoldout)
+            ////{
+            ////    DisplayAvailableScenes();
+            ////}
 
-        //    GUILayout.EndVertical();
+            GUILayout.EndVertical();
 
-        //    GUILayout.Space(20);
+            GUILayout.Space(20);
 
-        //    GUILayout.EndHorizontal();
+            GUILayout.EndHorizontal();
 
-        //    // FLEXIBLE SPACE
-
-        //    if (startingCount != managedScenes.Count)
-        //    {
-        //        UpdateManagedSceneList();
-        //        UpdateAvailableSceneList();
-        //    }
-        //}
+            //// FLEXIBLE SPACE
+        }
 
         #endregion
 

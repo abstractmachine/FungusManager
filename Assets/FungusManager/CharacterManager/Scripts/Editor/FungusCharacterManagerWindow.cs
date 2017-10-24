@@ -49,7 +49,7 @@ namespace Fungus
             //    DisplaySceneManager();
             //    return;
             //}
-
+            //
             //// check to see if there is at least one scene manager in the project
             //if (!ProjectContainsSceneNamed("SceneManager.unity"))
             //{
