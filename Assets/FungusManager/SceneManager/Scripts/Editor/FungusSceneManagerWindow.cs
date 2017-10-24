@@ -16,6 +16,8 @@ namespace Fungus
         private bool addControllerInput = true;
         private bool createCharactersPrefab = true;
 
+        private string lastSaveFolder = "Assets/";
+
         private bool newSceneFoldout = true;
         private string sceneName = "Start";
         //private bool managedScenesFoldout = true;
@@ -191,7 +193,8 @@ namespace Fungus
         protected void CreateFungusSceneManager()
         {
             // tell the user to select a path
-            string path = EditorUtility.SaveFolderPanel("Select a folder for the 'SceneManager' scene", "Assets/", "");
+            string path = EditorUtility.SaveFolderPanel("Select a folder for the 'SceneManager' scene", "Assets/", lastSaveFolder);
+            lastSaveFolder = path; // CleanUpPath(path + "/");
 
             // check the path
             if (!IsPathValid(path)) return;
@@ -204,16 +207,16 @@ namespace Fungus
             // either create a new sub-scene, or erase the current scene
             Scene sceneManager = GetCleanScene(true);
 
+            GameObject flowchartPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/Flowcharts.prefab", typeof(GameObject));
+            GameObject flowchartGameObject = PrefabUtility.InstantiatePrefab(flowchartPrefab, sceneManager) as GameObject;
+            // disconnect this object from the prefab (in package folder) that created it
+            PrefabUtility.DisconnectPrefabInstance(flowchartGameObject);
+
             // add prefabs to scene
             GameObject sceneManagerPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/SceneManager.prefab", typeof(GameObject));
             GameObject sceneManagerGameObject = PrefabUtility.InstantiatePrefab(sceneManagerPrefab, sceneManager) as GameObject;
             // disconnect this object from the prefab (in package folder) that created it
             PrefabUtility.DisconnectPrefabInstance(sceneManagerGameObject);
-
-            GameObject flowchartPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/Flowcharts.prefab", typeof(GameObject));
-            GameObject flowchartGameObject = PrefabUtility.InstantiatePrefab(flowchartPrefab, sceneManager) as GameObject;
-            // disconnect this object from the prefab (in package folder) that created it
-            PrefabUtility.DisconnectPrefabInstance(flowchartGameObject);
 
             // try to save
             if (!EditorSceneManager.SaveScene(sceneManager, path + "/SceneManager.unity", false))
@@ -236,7 +239,8 @@ namespace Fungus
             }
 
             // tell the user to select a path
-            string path = EditorUtility.SaveFolderPanel("Select a folder for the '" + sceneName + "' scene", "Assets/", "");
+            string path = EditorUtility.SaveFolderPanel("Select a folder for the '" + sceneName + "' scene", "Assets/", lastSaveFolder);
+            lastSaveFolder = path; // CleanUpPath(path + "/");
 
             // check the path
             if (!IsPathValid(path)) return;
