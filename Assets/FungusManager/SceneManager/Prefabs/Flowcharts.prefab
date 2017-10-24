@@ -54,9 +54,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4895667797863078}
   - component: {fileID: 114390575329344910}
-  - component: {fileID: 114419577471108300}
-  - component: {fileID: 114030018450078786}
-  - component: {fileID: 114456053035144992}
   m_Layer: 0
   m_Name: Object Activations
   m_TagString: Untagged
@@ -105,18 +102,6 @@ Transform:
   m_Father: {fileID: 4128355927785926}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114030018450078786
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1903805564903568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentBlock: {fileID: 114419577471108300}
 --- !u!114 &114226255690195860
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -154,9 +139,8 @@ MonoBehaviour:
     width: 0
     height: 0
   selectedBlocks:
-  - {fileID: 114419577471108300}
-  selectedCommands:
-  - {fileID: 114456053035144992}
+  - {fileID: 0}
+  selectedCommands: []
   variables: []
   description: 
   stepPause: 0
@@ -168,31 +152,6 @@ MonoBehaviour:
   hideCommands: []
   luaEnvironment: {fileID: 0}
   luaBindingName: flowchart
---- !u!114 &114419577471108300
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1903805564903568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d3d73aef2cfc4f51abf34ac00241f60, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nodeRect:
-    serializedVersion: 2
-    x: 537
-    y: 171
-    width: 156
-    height: 40
-  tint: {r: 1, g: 1, b: 1, a: 1}
-  useCustomTint: 0
-  itemId: 0
-  blockName: Any Scene
-  description: 
-  eventHandler: {fileID: 114030018450078786}
-  commandList:
-  - {fileID: 114456053035144992}
 --- !u!114 &114452216663476966
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -206,8 +165,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nodeRect:
     serializedVersion: 2
-    x: 669.24866
-    y: 178.92783
+    x: 602.24866
+    y: 147.92783
     width: 167
     height: 40
   tint: {r: 1, g: 1, b: 1, a: 1}
@@ -218,23 +177,6 @@ MonoBehaviour:
   eventHandler: {fileID: 114226255690195860}
   commandList:
   - {fileID: 114650662340919734}
---- !u!114 &114456053035144992
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1903805564903568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2fab8abf0343545abbfebd9a7b7b34bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemId: 1
-  indentLevel: 0
-  logType: 0
-  logMessage:
-    stringRef: {fileID: 0}
-    stringVal: A scene loaded.
 --- !u!114 &114650662340919734
 MonoBehaviour:
   m_ObjectHideFlags: 1

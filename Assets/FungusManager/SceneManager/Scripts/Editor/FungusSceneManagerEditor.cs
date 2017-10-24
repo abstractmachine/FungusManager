@@ -44,9 +44,16 @@ namespace Fungus
 
             EditorGUILayout.Space();
 
-            EditorGUI.BeginChangeCheck();
-
             // the List of saved Scenes
+
+            EditorGUI.BeginChangeCheck();
+            
+            if (GUILayout.Button("Save Build Settings Scene List"))
+            {
+                SaveSceneList();
+                Undo.RecordObject(target, "Save Scene List");
+            }
+            EditorGUI.EndChangeCheck();
 
             EditorGUILayout.Space();
 

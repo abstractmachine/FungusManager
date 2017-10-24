@@ -13,8 +13,15 @@ namespace Fungus
     {
         #region Members
 
+        protected bool projectContainsSceneManager = false;
+        protected bool projectContainsStartScene = false;
+
         protected bool sceneManagerIsLoaded = false;
         protected bool sceneManagerIsActive = false;
+        protected bool startSceneIsLoaded = false;
+        protected bool startSceneIsActive = false;
+
+        protected List<string> scenesInProject = new List<string>();
 
         #endregion
 
@@ -23,7 +30,7 @@ namespace Fungus
 
         virtual protected void Awake()
         {
-            CheckForSceneManager();
+            CheckScenes();
         }
 
 
@@ -54,57 +61,19 @@ namespace Fungus
 
         virtual protected void OnGUI()
         {
-            // if the scene manager is not already loaded
-            if (!sceneManagerIsLoaded)
-            {
-                // get current scenes
-                List<string> currentScenes = CurrentSceneAssets();
-                // check to see if there is at least one scene manager in there
-                bool projectContainsSceneManager = ContainsSceneManager(currentScenes);
 
-                if (projectContainsSceneManager)
-                {
-                    string path = GetSceneManagerPath(currentScenes);
-                    LoadSceneManagerButton(path);
-                }
-                else
-                {
-                    CreateSceneManagerButton();
-                } // if (projectContainsSceneManager
-
-            } // if (!sceneManagerIsLoaded)
         }
 
 
-        protected void LoadSceneManagerButton(string path)
-        {
-            if (!sceneManagerIsLoaded)
-            {
-                GUILayout.FlexibleSpace();
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-
-                if (GUILayout.Button("Load 'SceneManager'"))
-                {
-                    LoadFungusSceneManager(path);
-                }
-
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-                GUILayout.FlexibleSpace();
-            } 
-        }
-
-
-        protected void CreateSceneManagerButton()
+        protected void LoadSceneButton(string sceneName, string path)
         {
             GUILayout.FlexibleSpace();
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button("Create 'SceneManager' + 'Start' scenes"))
+            if (GUILayout.Button("Load '" + sceneName + "'"))
             {
-                CreateFungusSceneManager();
+                //LoadManagedScene(path, OpenSceneMode.Additive);
             }
 
             GUILayout.FlexibleSpace();
@@ -115,155 +84,95 @@ namespace Fungus
         #endregion
 
 
-        #region Load/Unload
 
-        protected void LoadFungusSceneManager(string scenePath)
+        #region Check
+
+        virtual protected void CheckScenes()
         {
-            Scene managerScene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+            // get the latest list of available scenes
+            UpdateProjectSceneList();
 
-            EditorSceneManager.SetActiveScene(managerScene);
-
-            Scene firstScene = EditorSceneManager.GetSceneAt(0);
-
-            if (firstScene != managerScene)
-            {
-                EditorSceneManager.MoveSceneBefore(managerScene, firstScene);
-            }
+            // get current state of Scene Manager
+            projectContainsSceneManager = DoesSceneExist("SceneManager");
+            // get current state of Start scene
+            projectContainsStartScene = DoesSceneExist("Start");
 
             CheckForSceneManager();
+            CheckForStartScene();
         }
 
 
-        protected void CreateFungusSceneManager()
+        virtual protected void CheckForSceneManager()
         {
-            // tell the user to select a path
-            string path = EditorUtility.SaveFolderPanel("Select a folder for the SceneManager", "Assets/", "");
+            sceneManagerIsLoaded = IsSceneLoaded(GetSceneManagerScene());
+            sceneManagerIsActive = IsSceneActive(GetSceneManagerScene());
+        }
+
+
+        virtual protected void CheckForStartScene()
+        {
+            startSceneIsLoaded = IsSceneLoaded(GetLoadedSceneByName("Start"));
+            startSceneIsActive = IsSceneActive(GetLoadedSceneByName("Start"));
+        }
+
+
+        protected bool IsSceneLoaded(Scene scene)
+        {
+            // if there is a valid scene here, return true
+            if (scene.IsValid()) return true;
+            // otherwise, we're not valid (result came up empty)
+            return false;
+        }
+
+
+        protected bool IsSceneActive(Scene scene)
+        {
+            // check to see if the start scene is the active scene
+            if (EditorSceneManager.GetActiveScene() == scene) return true;
+            return false;
+        }
+
+
+        protected bool IsPathValid(string path)
+        {
             // make sure there was a valid path
             if (path == "")
             {
                 // send warning
                 Debug.LogWarning("No folder selected");
-                return;
+                return false;
             }
             // make sure this is not the root folder
             if (path == Application.dataPath)
             {
                 Debug.LogWarning("Cannot save to root 'Assets/' folder. Please select a project sub-folder.");
-                return;
+                return false;
             }
             // make sure this is not the FungusManager folder
             if (path.Contains(Application.dataPath + "/FungusManager"))
             {
                 Debug.LogWarning("Cannot save into 'Assets/FungusManager' folder. Please select a different project sub-folder.");
-                return;
+                return false;
             }
             // make sure this is not the Fungus folder
             if (path.Contains(Application.dataPath + "/Fungus"))
             {
                 Debug.LogWarning("Cannot save into 'Assets/Fungus' folder. Please select a different project sub-folder.");
-                return;
+                return false;
             }
 
-            // remove full data path
-            if (path.StartsWith(Application.dataPath))
-            {
-                path = "Assets" + path.Substring(Application.dataPath.Length);
-            }
-
-            Scene startScene = new Scene();
-
-            // try to find the start scene
-            string startScenePath = GetSceneAssetPath("Start.unity");
-            if (startScenePath != "")
-            {
-                startScene = EditorSceneManager.OpenScene(startScenePath);
-            }
-            else // Create the Start scene
-            {
-                // this will verify if we need to create start scene
-                bool usingActiveScene = false;
-                // first check to see if we are in an Untitled Scene
-                Scene activeScene = EditorSceneManager.GetActiveScene();
-                if (activeScene.name == "")
-                {
-                    GameObject[] rootObjects = activeScene.GetRootGameObjects();
-                    if (rootObjects.Length <= 3 && rootObjects[0].name == "Main Camera")
-                    {
-                        usingActiveScene = true;
-                        DestroyImmediate(rootObjects[0]);
-                        startScene = activeScene;
-                        // add stuff
-                        // add prefabs to scene
-                        GameObject hyperzoomPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/Hyperzoom/Prefabs/Hyperzoom.prefab", typeof(GameObject));
-                        PrefabUtility.InstantiatePrefab(hyperzoomPrefab, startScene);
-                        GameObject inputPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/Hyperzoom/Prefabs/Input.prefab", typeof(GameObject));
-                        PrefabUtility.InstantiatePrefab(inputPrefab, startScene);
-                        // try to save
-                        bool startSaveSuccess = EditorSceneManager.SaveScene(startScene, path + "/Start.unity", false);
-
-                        if (!startSaveSuccess)
-                        {
-                            Debug.LogWarning("Couldn't create Start scene.");
-                            return;
-                        }
-                    }
-                }  // if (activeName == "")
-
-                if (!usingActiveScene)
-                {
-                    Debug.LogWarning("Couldn't create Start scene. Create a New empty scene.");
-                    return;
-                }
-            }
-
-            // Create the SceneManager
-
-            Scene sceneManager = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
-            // add prefabs to scene
-            GameObject fungusSceneManagerPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/FungusSceneManager.prefab", typeof(GameObject));
-            PrefabUtility.InstantiatePrefab(fungusSceneManagerPrefab, sceneManager);
-
-            GameObject fungusFlowchartPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/Flowcharts.prefab", typeof(GameObject));
-            PrefabUtility.InstantiatePrefab(fungusFlowchartPrefab, sceneManager);
-
-            // try to save
-            bool saveSuccess = EditorSceneManager.SaveScene(sceneManager, path + "/FungusSceneManager.unity", false);
-
-            if (!saveSuccess)
-            {
-                Debug.LogWarning("Couldn't create FungusSceneManager");
-            }
-
-            CheckForSceneManager();
-
+            return true;
         }
 
+        #endregion
 
-        string GetSceneManagerPath(List<string> sceneAssets)
+
+        #region Find
+
+        void UpdateProjectSceneList()
         {
-            // is there at least one asset with the name SceneManager?
-            foreach (string sceneAsset in sceneAssets)
-            {
-                // if this file name ends with SceneManager.unity
-                // TODO: Find a better testing mechanism than scene name
-                if (sceneAsset.EndsWith("SceneManager.unity")) return sceneAsset;
-            }
-            // couldn't find one
-            return "";
-        }
-
-
-        bool ContainsSceneManager(List<string> sceneAssets)
-        {
-            // is there at least one asset with the name SceneManager?
-            foreach (string sceneAsset in sceneAssets)
-            {
-                // if this file name ends with SceneManager.unity
-                // TODO: Find a better testing mechanism than scene name
-                if (sceneAsset.EndsWith("SceneManager.unity")) return true;
-            }
-            // couldn't find one
-            return false;
+            // get the latest list of available scenes
+            scenesInProject = CurrentSceneAssets();
         }
 
 
@@ -283,9 +192,11 @@ namespace Fungus
                 // ok, this is valid
                 searchableFolders.Add("Assets/" + new DirectoryInfo(subfolder).Name);
             }
-
+            // look inside those valid (non-Fungus) folders for Scenes
             string[] foundScenes = AssetDatabase.FindAssets("t:Scene", searchableFolders.ToArray());
-            foreach(string scene in foundScenes){
+            // go through each scene
+            foreach (string scene in foundScenes)
+            {
                 string path = AssetDatabase.GUIDToAssetPath(scene);
                 projectScenes.Add(path);
             }
@@ -297,25 +208,12 @@ namespace Fungus
         protected string GetSceneAssetPath(string sceneName)
         {
             // this is the list of valid folders we can search in
-            List<string> searchableFolders = new List<string>();
-            // get the list of all the root folders in our project
-            string[] rootFolders = Directory.GetDirectories(Application.dataPath + "/");
-            // go through each folder
-            foreach (string subfolder in rootFolders)
-            {
-                // ignore these subfolders
-                if (subfolder.EndsWith("Fungus") || subfolder.EndsWith("FungusManager")) continue;
-                // ok, this is valid
-                searchableFolders.Add("Assets/" + new DirectoryInfo(subfolder).Name);
-            }
+            List<string> currentSceneAssets = CurrentSceneAssets();
 
-            // this is the final list of scenes
-            string[] foundScenes = AssetDatabase.FindAssets("t:Scene", searchableFolders.ToArray());
-            foreach (string scene in foundScenes)
+            foreach (string path in currentSceneAssets)
             {
-                string path = AssetDatabase.GUIDToAssetPath(scene);
-                // 
-                if (path.EndsWith(sceneName)) {
+                if (path.EndsWith(sceneName))
+                {
                     return path;
                 }
             }
@@ -324,56 +222,43 @@ namespace Fungus
         }
 
 
-        protected void CloseFungusSceneManager()
+        protected bool DoesSceneExist(string sceneName)
         {
-            // first get a reference to the scene manager
-            Scene managerScene = GetSceneManagerScene();
-            if (!managerScene.IsValid())
+            // convert to unity file name
+            string sceneFileName = sceneName + ".unity";
+            // go through all the scene names
+            foreach (string name in scenesInProject)
             {
-                Debug.LogError("Scene Manager is already closed");
-                return;
+                // is this in here?
+                if (name.EndsWith(sceneFileName))
+                {
+                    // ok, found it
+                    return true;
+                }
+                // if
             }
-            // make sure this is not the only loaded scene
-            if (EditorSceneManager.GetActiveScene() == managerScene)
-            {
-                Debug.LogWarning("'SceneManager' cannot be closed because it is currently the active scene. Switch to another scene before closing.");
-                return;
-            }
-            // close the scene
-            EditorSceneManager.CloseScene(managerScene, true);
+            // foreach
+
+            // couldn't find anything
+            return false;
         }
 
         #endregion
 
 
-
-        #region Scenes
-
-        virtual protected void CheckForSceneManager()
+        protected Scene GetLoadedSceneByName(string sceneName)
         {
-            sceneManagerIsLoaded = IsSceneManagerLoaded();
-            sceneManagerIsActive = IsSceneManagerActive();
-        }
+            for (int i = 0; i < EditorSceneManager.sceneCount; i++)
+            {
+                Scene scene = EditorSceneManager.GetSceneAt(i);
 
+                // ignore scene that just closed
+                if (!scene.IsValid() || !scene.isLoaded) continue;
 
-        protected bool IsSceneManagerLoaded()
-        {
-            // try to load the FungusSceneManager scene
-            Scene managerScene = GetSceneManagerScene();
-            // if there is a valid scene here, return true
-            if (managerScene.IsValid()) return true;
-            // otherwise, we're not valid (result came up empty)
-            return false;
-        }
-
-
-        protected bool IsSceneManagerActive()
-        {
-            // get a reference to the scene manager
-            Scene managerScene = GetSceneManagerScene();
-            // check to see if the manager is the active scene
-            if (EditorSceneManager.GetActiveScene() == managerScene) return true;
-            return false;
+                if (scene.name == sceneName) return scene;
+            }
+            // return an empty scene
+            return new Scene();
         }
 
 
@@ -395,33 +280,96 @@ namespace Fungus
                     }
                 }
             }
-
-            Scene nullScene = new Scene();
-            return nullScene;
+            // return an empty scene
+            return new Scene();
         }
 
 
         protected FungusSceneManager GetFungusSceneManagerScript()
         {
-            for (int i = 0; i < EditorSceneManager.sceneCount; i++)
+            Scene scene = GetSceneManagerScene();
+
+            // make sure we actually got a scene
+            if (!scene.IsValid()) return null;
+
+            foreach (GameObject go in scene.GetRootGameObjects())
             {
-                Scene scene = EditorSceneManager.GetSceneAt(i);
-
-                // ignore scene that just closed
-                if (!scene.IsValid() || !scene.isLoaded) continue;
-
-                foreach (GameObject go in scene.GetRootGameObjects())
+                FungusSceneManager fungusSceneManager = go.GetComponent<FungusSceneManager>();
+                if (fungusSceneManager != null)
                 {
-                    FungusSceneManager fungusSceneManager = go.GetComponent<FungusSceneManager>();
-                    if (fungusSceneManager != null)
-                    {
-                        return fungusSceneManager;
-                    }
+                    return fungusSceneManager;
                 }
             }
 
             return null;
         }
+
+
+        #region Load/Unload
+
+        protected void LoadManagedScene(string scenePath, OpenSceneMode sceneMode, bool moveToTop = false)
+        {
+            Scene scene = EditorSceneManager.OpenScene(scenePath, sceneMode);
+
+            EditorSceneManager.SetActiveScene(scene);
+
+            Scene firstScene = EditorSceneManager.GetSceneAt(0);
+
+            if (moveToTop && firstScene != scene)
+            {
+                EditorSceneManager.MoveSceneBefore(scene, firstScene);
+            }
+
+            CheckScenes();
+        }
+
+
+        //protected List<string> CurrentSceneAssets()
+        //{
+        //    // this is the final list of scenes
+        //    List<string> projectScenes = new List<string>();
+        //    // this is the list of valid folders we can search in
+        //    List<string> searchableFolders = new List<string>();
+        //    // get the list of all the root folders in our project
+        //    string[] rootFolders = Directory.GetDirectories(Application.dataPath + "/");
+        //    // go through each folder
+        //    foreach (string subfolder in rootFolders)
+        //    {
+        //        // ignore these subfolders
+        //        if (subfolder.EndsWith("Fungus") || subfolder.EndsWith("FungusManager")) continue;
+        //        // ok, this is valid
+        //        searchableFolders.Add("Assets/" + new DirectoryInfo(subfolder).Name);
+        //    }
+
+        //    string[] foundScenes = AssetDatabase.FindAssets("t:Scene", searchableFolders.ToArray());
+        //    foreach (string scene in foundScenes)
+        //    {
+        //        string path = AssetDatabase.GUIDToAssetPath(scene);
+        //        projectScenes.Add(path);
+        //    }
+
+        //    return projectScenes;
+        //}
+
+
+        //protected void CloseFungusSceneManager()
+        //{
+        //    // first get a reference to the scene manager
+        //    Scene managerScene = GetSceneManagerScene();
+        //    if (!managerScene.IsValid())
+        //    {
+        //        Debug.LogError("Scene Manager is already closed");
+        //        return;
+        //    }
+        //    // make sure this is not the only loaded scene
+        //    if (EditorSceneManager.GetActiveScene() == managerScene)
+        //    {
+        //        Debug.LogWarning("'SceneManager' cannot be closed because it is currently the active scene. Switch to another scene before closing.");
+        //        return;
+        //    }
+        //    // close the scene
+        //    EditorSceneManager.CloseScene(managerScene, true);
+        //}
 
         #endregion
 
@@ -430,29 +378,28 @@ namespace Fungus
 
         virtual protected void SceneOpenedCallback(Scene newScene, OpenSceneMode mode)
         {
-            CheckForSceneManager();
+            CheckScenes();
         }
 
         virtual protected void SceneSavedCallback(Scene scene)
         {
-            CheckForSceneManager();
+            CheckScenes();
         }
 
         virtual protected void SceneClosedCallback(Scene closedScene)
         {
-            CheckForSceneManager();
+            CheckScenes();
         }
 
         virtual protected void ActiveSceneChangedCallback(Scene oldScene, Scene newScene)
         {
-            CheckForSceneManager();
+            CheckScenes();
         }
 
         virtual protected void SceneCreatedCallback(Scene scene, NewSceneSetup setup, NewSceneMode mode)
         {
-            CheckForSceneManager();
+            CheckScenes();
         }
-
 
         #endregion
 

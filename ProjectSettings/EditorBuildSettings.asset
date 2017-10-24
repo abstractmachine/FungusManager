@@ -4,4 +4,10 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/ACrossingIndustry/Demo/Scenes/FungusSceneManager.unity
+    guid: d9873c75834b34bfcadb4438c147dd87
+  - enabled: 1
+    path: Assets/ACrossingIndustry/Demo/Scenes/Morty.unity
+    guid: aeb24f54fbc87434e8f18054f650a6ca

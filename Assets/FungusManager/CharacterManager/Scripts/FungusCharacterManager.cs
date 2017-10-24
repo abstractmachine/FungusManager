@@ -3,8 +3,7 @@ using UnityEngine.EventSystems;
 
 public class FungusCharacterManager : MonoBehaviour
 {
-
-
+    
     #region Init
 
     virtual protected void Awake()
