@@ -262,7 +262,7 @@ namespace Fungus
 
             if (managerScene.IsValid())
             {
-                EditorSceneManager.SetActiveScene(managerScene);
+                SetSceneToActive(managerScene);
             }
 
             return EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
@@ -344,6 +344,10 @@ namespace Fungus
             // add this new scene to the build settings
             SaveSceneToBuildSettings(sceneManagerScene);
 
+            // if the SceneManager is loaded, make it active
+            SetSceneToActive(sceneManagerScene);
+            MoveSceneToTop(sceneManagerScene);
+
             CheckScenes();
 
         }
@@ -396,6 +400,7 @@ namespace Fungus
                     DestroyImmediate(joystick);
                 }
             }
+            // if (addHyperzoomControls)
 
             if (createCharactersPrefab)
             {
@@ -423,7 +428,9 @@ namespace Fungus
                     // set this as our prefab
                     PrefabUtility.ConnectGameObjectToPrefab(charactersGameObject, newPrefab);
                 }
+
             }
+            // if (createCharactersPrefab)
 
             // try to save
             if (!EditorSceneManager.SaveScene(newScene, path + "/" + sceneName + ".unity", false))
@@ -433,6 +440,14 @@ namespace Fungus
 
             // add this new scene to the build settings
             SaveSceneToBuildSettings(newScene);
+
+            // now that we've saved, switch back to SceneManager
+            Scene sceneManagerScene = GetSceneManagerScene();
+            if (sceneManagerScene.IsValid())
+            {
+                SetSceneToActive(sceneManagerScene);
+                MoveSceneToTop(sceneManagerScene);
+            }
 
             CheckScenes();
         }

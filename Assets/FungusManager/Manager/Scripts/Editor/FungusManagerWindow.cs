@@ -387,7 +387,7 @@ namespace Fungus
         {
             Scene scene = EditorSceneManager.OpenScene(scenePath, sceneMode);
 
-            EditorSceneManager.SetActiveScene(scene);
+            SetSceneToActive(scene);
 
             Scene firstScene = EditorSceneManager.GetSceneAt(0);
             if (moveToTop && firstScene != scene)
@@ -396,6 +396,12 @@ namespace Fungus
             }
 
             CheckScenes();
+        }
+
+
+        protected void SetSceneToActive(Scene scene)
+        {
+            EditorSceneManager.SetActiveScene(scene);
         }
 
 
