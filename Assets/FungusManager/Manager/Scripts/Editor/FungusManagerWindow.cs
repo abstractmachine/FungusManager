@@ -3,14 +3,30 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using System.IO;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Fungus
 {
 
+    class FungusManagerAssetPostProcessor : AssetPostprocessor
+    {
+        public static bool didChange = false;
+
+        public static void ResetFlag()
+        {
+            didChange = false;
+        }
+
+        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+        {
+            didChange = true;
+        }
+    }
+
+
     public class FungusManagerWindow : EditorWindow
     {
+
         #region Members
 
         protected bool projectContainsSceneManager = false;
@@ -41,6 +57,7 @@ namespace Fungus
             EditorSceneManager.sceneClosed += SceneClosedCallback;
             EditorSceneManager.activeSceneChanged += ActiveSceneChangedCallback;
             EditorSceneManager.newSceneCreated += SceneCreatedCallback;
+
         }
 
 
@@ -410,26 +427,6 @@ namespace Fungus
             Scene firstScene = EditorSceneManager.GetSceneAt(0);
             EditorSceneManager.MoveSceneBefore(scene, firstScene);
         }
-
-
-        //protected void CloseFungusSceneManager()
-        //{
-        //    // first get a reference to the scene manager
-        //    Scene managerScene = GetSceneManagerScene();
-        //    if (!managerScene.IsValid())
-        //    {
-        //        Debug.LogError("Scene Manager is already closed");
-        //        return;
-        //    }
-        //    // make sure this is not the only loaded scene
-        //    if (EditorSceneManager.GetActiveScene() == managerScene)
-        //    {
-        //        Debug.LogWarning("'SceneManager' cannot be closed because it is currently the active scene. Switch to another scene before closing.");
-        //        return;
-        //    }
-        //    // close the scene
-        //    EditorSceneManager.CloseScene(managerScene, true);
-        //}
 
         #endregion
 

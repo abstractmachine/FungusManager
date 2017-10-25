@@ -48,7 +48,15 @@ namespace Fungus
         {
             base.OnGUI();
 
-            CheckScenes();
+            // if there was a change in one of the assets
+            if (FungusManagerAssetPostProcessor.didChange)
+            {
+                // recheck the state of the scenes
+                CheckScenes();
+                // reset flag
+                FungusManagerAssetPostProcessor.ResetFlag();
+            }
+
 
             // check to see if there is at least one scene manager in the project
             if (!projectContainsSceneManager)
@@ -465,9 +473,14 @@ namespace Fungus
         {
             FungusSceneManager fungusSceneManagerScript = GetFungusSceneManagerScript();
 
-            foreach (string scene in fungusSceneManagerScript.scenes)
+            List<string> scenes = fungusSceneManagerScript.scenes;
+
+            foreach (string scene in scenes)
             {
-                DisplayScene(scene);
+                if (scene != null)
+                {
+                    DisplayScene(scene);
+                }
             }
         }
 
@@ -494,93 +507,6 @@ namespace Fungus
         {
             SaveBuildSettingsInSceneManager();
         }
-
-        #endregion
-
-
-
-        #region Scenes
-
-        //override protected void CheckForSceneManager()
-        //{
-        //    base.CheckForSceneManager();
-
-        //    if (fungusSceneManager == null)
-        //    {
-        //        fungusSceneManager = GetFungusSceneManagerScript();
-        //    }
-
-        //    UpdateManagedSceneList();
-        //    UpdateAvailableSceneList();
-        //}
-
-
-        //private void DisplayAvailableScene(string sceneName, bool state = false)
-        //{
-        //    GUILayout.BeginHorizontal();
-        //    bool newState = GUILayout.Toggle(state, sceneName);
-        //    GUILayout.EndHorizontal();
-
-        //    if (newState != state)
-        //    {
-
-        //        string name = (new DirectoryInfo(sceneName).Name);
-        //        Debug.Log(name);
-
-        //        if (newState == true)
-        //        {
-        //            AddScene(sceneName);
-        //        }
-        //        else
-        //        {
-        //            RemoveScene(sceneName);
-        //        }
-
-        //        // set the manger scene as "dirty"
-        //        EditorSceneManager.MarkSceneDirty(GetSceneManagerScene());
-        //    }
-        //}
-
-        #endregion
-
-
-        #region Add/Remove
-
-        //void NewScene(string sceneName)
-        //{
-        //    Debug.Log("New : " + sceneName);
-        //}
-
-        //void AddScene(string sceneName)
-        //{
-        //    Debug.Log("Add : " + sceneName);
-
-        //    //// create an empty list
-        //    ////List<string> scenePathsToAdd = new List<string>();
-        //    //List<string> scenesToAdd = new List<string>();
-
-        //    //// first add the 
-        //    //scenesToAdd.Add(fungusSceneManager.gameObject.scene.name);
-
-        //    //// first load in all the current scenes in the build settings
-        //    //foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
-        //    //{
-        //    //    // if this is not the manager scene
-        //    //    if (fungusSceneManager.gameObject.scene.path != buildScene.path)
-        //    //    {
-        //    //        // name without extension
-        //    //        string sceneFileNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(buildScene.path);
-        //    //        //scenePathsToAdd.Add(buildScene.path);
-        //    //        scenesToAdd.Add(sceneFileNameWithoutExtension);
-        //    //    }
-        //    //}
-
-        //    //// tell the mananger to save it's paths
-        //    //fungusSceneManager.scenes = scenesToAdd;
-
-        //    //// set the current scene as "dirty"
-        //    //EditorSceneManager.MarkSceneDirty(fungusSceneManager.gameObject.scene);
-        //}
 
         #endregion
 
