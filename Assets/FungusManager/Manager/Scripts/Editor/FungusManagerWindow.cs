@@ -7,23 +7,6 @@ using System.Collections.Generic;
 
 namespace Fungus
 {
-
-    class FungusManagerAssetPostProcessor : AssetPostprocessor
-    {
-        public static bool didChange = false;
-
-        public static void ResetFlag()
-        {
-            didChange = false;
-        }
-
-        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
-        {
-            didChange = true;
-        }
-    }
-
-
     public class FungusManagerWindow : EditorWindow
     {
 
@@ -573,5 +556,24 @@ namespace Fungus
         #endregion
 
     }
+
+    #region Post-Processor
+
+    class FungusManagerAssetPostProcessor : AssetPostprocessor
+    {
+        public static bool didChange = false;
+
+        public static void ResetFlag()
+        {
+            didChange = false;
+        }
+
+        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
+        {
+            didChange = true;
+        }
+    }
+
+    #endregion
 
 }

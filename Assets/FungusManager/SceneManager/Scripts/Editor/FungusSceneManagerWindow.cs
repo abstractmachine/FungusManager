@@ -381,7 +381,7 @@ namespace Fungus
             }
 
             // tell the user to select a path
-            string path = EditorUtility.SaveFolderPanel("Select a folder for the '" + sceneName + "' scene", "Assets/", lastSaveFolder);
+            string path = EditorUtility.SaveFolderPanel("Select a folder for the '" + sceneName + "' scene", lastSaveFolder, "");
             lastSaveFolder = path; // CleanUpPath(path + "/");
 
             // check the path
