@@ -29,7 +29,7 @@ namespace Fungus
 
         [Tooltip("Name of the scene to load. The scene must be added both to the build settings and to the Manager script's public 'Scenes' list.")]
         [SerializeField]
-        protected string sceneName = "";
+        public string sceneName = "";
 
         #endregion
 

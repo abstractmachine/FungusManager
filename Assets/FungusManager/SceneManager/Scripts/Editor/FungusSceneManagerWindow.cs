@@ -285,40 +285,64 @@ namespace Fungus
             // Create the SceneManager
 
             // either create a new sub-scene, or erase the current scene
-            Scene sceneManager = GetCleanScene(true);
+            Scene sceneManagerScene = GetCleanScene(true);
 
             // make sure the scene we got back was valid
-            if (!sceneManager.IsValid()) return;
+            if (!sceneManagerScene.IsValid()) return;
 
             // add prefabs to scene
             GameObject sceneManagerPrefab = Resources.Load<GameObject>("SceneManager/Prefabs/SceneManager");
             if (sceneManagerPrefab == null)
             {
-                Debug.LogError("Couldn't load sceneManagerPrefab");
+                Debug.LogError("Couldn't load SceneManager prefab");
                 return;
             }
-            GameObject sceneManagerGameObject = PrefabUtility.InstantiatePrefab(sceneManagerPrefab, sceneManager) as GameObject;
+            GameObject sceneManagerGameObject = PrefabUtility.InstantiatePrefab(sceneManagerPrefab, sceneManagerScene) as GameObject;
             // disconnect this object from the prefab (in package folder) that created it
             PrefabUtility.DisconnectPrefabInstance(sceneManagerGameObject);
 
-            GameObject flowchartPrefab = Resources.Load<GameObject>("SceneManager/Prefabs/Flowcharts");
-            if (flowchartPrefab == null)
+            // add the flowcharts empty object
+
+            GameObject flowchartsPrefab = Resources.Load<GameObject>("SceneManager/Prefabs/Flowcharts");
+            if (flowchartsPrefab == null)
             {
-                Debug.LogError("Couldn't load flowchartPrefab");
+                Debug.LogError("Couldn't load Flowcharts prefab");
                 return;
             }
-            GameObject flowchartGameObject = PrefabUtility.InstantiatePrefab(flowchartPrefab, sceneManager) as GameObject;
+            GameObject flowchartsGameObject = PrefabUtility.InstantiatePrefab(flowchartsPrefab, sceneManagerScene) as GameObject;
             // disconnect this object from the prefab (in package folder) that created it
+            PrefabUtility.DisconnectPrefabInstance(flowchartsGameObject);
+
+            // add an empty Fungus Flowchart
+            GameObject flowchartPrefab = Resources.Load<GameObject>("Prefabs/Flowchart");
+            if (flowchartPrefab == null)
+            {
+                Debug.LogError("Couldn't load Flowchart prefab");
+                return;
+            }
+            GameObject flowchartGameObject = PrefabUtility.InstantiatePrefab(flowchartPrefab, sceneManagerScene) as GameObject;
             PrefabUtility.DisconnectPrefabInstance(flowchartGameObject);
 
+            flowchartGameObject.name = "SceneManagement";
+            // attach this flowchart to the flowcharts GameObject
+            flowchartGameObject.transform.parent = flowchartsGameObject.transform;
+
+            // find the default block in Flowchart
+            Block defaultBlock = flowchartGameObject.GetComponent<Block>();
+            defaultBlock.BlockName = "Start";
+
+            // by default, add a 'Start' scene to this Flowchart
+            RequestManagedScene requestManagedScene = flowchartGameObject.AddComponent<RequestManagedScene>();
+            requestManagedScene.sceneName = "Start";
+
             // try to save
-            if (!EditorSceneManager.SaveScene(sceneManager, path + "/SceneManager.unity", false))
+            if (!EditorSceneManager.SaveScene(sceneManagerScene, path + "/SceneManager.unity", false))
             {
                 Debug.LogWarning("Couldn't create FungusSceneManager");
             }
 
             // add this new scene to the build settings
-            SaveSceneToBuildSettings(sceneManager);
+            SaveSceneToBuildSettings(sceneManagerScene);
 
             CheckScenes();
 
@@ -387,7 +411,6 @@ namespace Fungus
                     charactersPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(projectCharactersPrefabPath, typeof(GameObject));
                 }
 
-                //GameObject charactersPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(charactersPrefabPath, typeof(GameObject));
                 GameObject charactersGameObject = PrefabUtility.InstantiatePrefab(charactersPrefab, newScene) as GameObject;
 
                 // if this is a new prefab
@@ -470,33 +493,6 @@ namespace Fungus
 
         //    UpdateManagedSceneList();
         //    UpdateAvailableSceneList();
-        //}
-
-
-        //private void UpdateManagedSceneList()
-        //{
-        //    if (fungusSceneManager == null) return;
-
-        //    managedScenes = fungusSceneManager.scenes;
-        //}
-
-
-        //private void UpdateAvailableSceneList()
-        //{
-        //    availableScenes = CurrentSceneAssets();
-        //}
-
-
-        //private void DisplayAvailableScenes()
-        //{
-        //    foreach (string scene in availableScenes)
-        //    {
-        //        bool state = false;
-        //        // name without extension
-        //        string sceneFileNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(scene);
-        //        if (managedScenes.Contains(sceneFileNameWithoutExtension)) state = true;
-        //        DisplayAvailableScene(sceneFileNameWithoutExtension, state);
-        //    }
         //}
 
 
