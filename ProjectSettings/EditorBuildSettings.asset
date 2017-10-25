@@ -8,3 +8,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/ACrossingIndustry/Demo/Scenes/SceneManager.unity
     guid: ef6e3e3c8f9914c3cba7b7badde3543a
+  - enabled: 1
+    path: Assets/ACrossingIndustry/Demo/Scenes/Start.unity
+    guid: 0036bda0d99e444d3ad05cbd0762b230
+  - enabled: 1
+    path: Assets/ACrossingIndustry/Demo/Scenes/Dork.unity
+    guid: 515e8de448adc422a87355a9d6056c83

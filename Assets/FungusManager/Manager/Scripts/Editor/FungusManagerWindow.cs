@@ -432,6 +432,12 @@ namespace Fungus
 
         protected void SaveSceneToBuildSettings(Scene newScene)
         {
+            AddScenePathToBuildSettings(newScene.path);
+        }
+
+
+        protected void AddScenePathToBuildSettings(string addScenePath)
+        {
             // this is the final list of scenes
             List<EditorBuildSettingsScene> finalSceneList = new List<EditorBuildSettingsScene>();
 
@@ -443,13 +449,13 @@ namespace Fungus
 
             bool newSceneAlreadyInBuildSettings = false;
 
-            foreach(EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
+            foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
             {
                 bool thisSceneAlreadyInList = false;
                 foreach (EditorBuildSettingsScene checkScene in finalSceneList)
                 {
-                    if (checkScene.path == buildScene.path) thisSceneAlreadyInList = true;
-                    if (checkScene.path == newScene.path) newSceneAlreadyInBuildSettings = true;
+                    if (buildScene.path == checkScene.path) thisSceneAlreadyInList = true;
+                    if (buildScene.path == addScenePath) newSceneAlreadyInBuildSettings = true;
                 }
                 // add to list
                 if (!thisSceneAlreadyInList)
@@ -461,7 +467,7 @@ namespace Fungus
             // if we are not already added to the list
             if (!newSceneAlreadyInBuildSettings)
             {   // add to the main build settings list
-                finalSceneList.Add(new EditorBuildSettingsScene(newScene.path, true));
+                finalSceneList.Add(new EditorBuildSettingsScene(addScenePath, true));
             }
 
             // Set the Build Settings window Scene list

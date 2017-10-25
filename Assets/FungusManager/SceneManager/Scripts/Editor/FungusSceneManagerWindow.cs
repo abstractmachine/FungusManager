@@ -19,8 +19,12 @@ namespace Fungus
         private string lastSaveFolder = "Assets/";
 
         private bool newSceneFoldout = true;
+        private bool addSceneFoldout = true;
+
         private string sceneName = "Start";
         private bool managedScenesFoldout = true;
+
+        private Object addSceneObject = null;
 
         #endregion
 
@@ -100,6 +104,112 @@ namespace Fungus
             {
                 addControllerInput = GUILayout.Toggle(addControllerInput, "Add Joystick Controller input");
             }
+        }
+
+
+        private void DisplaySceneManager()
+        {
+            // spacing
+
+            GUILayout.Space(20);
+
+            // scene controls
+
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Space(20);
+
+            GUILayout.BeginVertical();
+
+            // CREATE NEW SCENE
+
+            newSceneFoldout = EditorGUILayout.Foldout(newSceneFoldout, "New Scene");
+
+            if (newSceneFoldout)
+            {
+                sceneName = EditorGUILayout.TextField("", sceneName, GUILayout.ExpandWidth(false));
+
+                // convert the above string into ligatures and print out into console
+                if (GUILayout.Button("Create New Scene", GUILayout.ExpandWidth(false)))
+                {
+                    CreateNewScene(sceneName);
+                    return;
+                }
+
+                GUIDrawSceneOptions();
+
+            } // if (newScene)
+
+            // ADD SCENE
+
+            GUILayout.Space(20);
+
+            addSceneFoldout = EditorGUILayout.Foldout(addSceneFoldout, "Add Scene");
+
+            if (addSceneFoldout)
+            {
+                addSceneObject = EditorGUILayout.ObjectField(addSceneObject, typeof(Object), true, GUILayout.ExpandWidth(false));
+                // 
+                if (GUILayout.Button("Add Scene", GUILayout.ExpandWidth(false)))
+                {
+                    if (addSceneObject == null)
+                    {
+                        Debug.LogWarning("No scene to add");
+                    } 
+                    else if (addSceneObject.GetType() == typeof(SceneAsset))
+                    {
+                        SceneAsset addSceneAsset = addSceneObject as SceneAsset;
+                        AddScene(addSceneAsset);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Asset type incorrect. Please select a Scene to add");
+                    }
+                    return;
+                }
+            }
+
+            // UPDATE SCENE LIST
+
+            GUILayout.Space(20);
+
+            managedScenesFoldout = EditorGUILayout.Foldout(managedScenesFoldout, "Current Scenes");
+
+            if (managedScenesFoldout)
+            {
+                // convert the above string into ligatures and print out into console
+                if (GUILayout.Button("Update Scene List", GUILayout.ExpandWidth(false)))
+                {
+                    UpdateScenes();
+                }
+
+                GUILayout.Space(10);
+
+                DisplayScenes();
+            }
+
+            GUILayout.EndVertical();
+
+            GUILayout.Space(40);
+
+            GUILayout.BeginVertical();
+
+            GUILayout.Space(20);
+
+            ////availableScenesFoldout = EditorGUILayout.Foldout(availableScenesFoldout, "Available Scenes (" + availableScenes.Count + ")");
+
+            ////if (availableScenesFoldout)
+            ////{
+            ////    DisplayAvailableScenes();
+            ////}
+
+            GUILayout.EndVertical();
+
+            GUILayout.Space(20);
+
+            GUILayout.EndHorizontal();
+
+            //// FLEXIBLE SPACE
         }
 
         #endregion
@@ -205,6 +315,13 @@ namespace Fungus
         }
 
 
+        void AddScene(SceneAsset addSceneAsset)
+        {
+            string addPath = AssetDatabase.GetAssetPath(addSceneAsset);
+            AddScenePathToBuildSettings(addPath);
+        }
+
+
         void CreateNewScene(string sceneName)
         {
             // if the scene exists already
@@ -284,83 +401,6 @@ namespace Fungus
             SaveSceneToBuildSettings(newScene);
 
             CheckScenes();
-        }
-
-        #endregion
-
-
-        #region Display
-
-        private void DisplaySceneManager()
-        {
-            // spacing
-
-            GUILayout.Space(20);
-
-            // scene controls
-
-            GUILayout.BeginHorizontal();
-
-            GUILayout.Space(20);
-
-            GUILayout.BeginVertical();
-
-            // CREATE NEW SCENE
-
-            newSceneFoldout = EditorGUILayout.Foldout(newSceneFoldout, "New Scene");
-
-            if (newSceneFoldout)
-            {
-                sceneName = EditorGUILayout.TextField("", sceneName, GUILayout.ExpandWidth(false));
-
-                // convert the above string into ligatures and print out into console
-                if (GUILayout.Button("Create New Scene", GUILayout.ExpandWidth(false)))
-                {
-                    CreateNewScene(sceneName);
-                    return;
-                }
-
-                GUIDrawSceneOptions();
-
-            } // if (newScene)
-
-            GUILayout.Space(20);
-
-            // convert the above string into ligatures and print out into console
-            if (GUILayout.Button("Update Scene List", GUILayout.ExpandWidth(false)))
-            {
-                UpdateScenes();
-            }
-
-            managedScenesFoldout = EditorGUILayout.Foldout(managedScenesFoldout, "Current Scenes");
-
-            if (managedScenesFoldout)
-            {
-                DisplayScenes();
-            }
-
-            GUILayout.EndVertical();
-
-            GUILayout.Space(40);
-
-            GUILayout.BeginVertical();
-
-            GUILayout.Space(20);
-
-            ////availableScenesFoldout = EditorGUILayout.Foldout(availableScenesFoldout, "Available Scenes (" + availableScenes.Count + ")");
-
-            ////if (availableScenesFoldout)
-            ////{
-            ////    DisplayAvailableScenes();
-            ////}
-
-            GUILayout.EndVertical();
-
-            GUILayout.Space(20);
-
-            GUILayout.EndHorizontal();
-
-            //// FLEXIBLE SPACE
         }
 
         #endregion
