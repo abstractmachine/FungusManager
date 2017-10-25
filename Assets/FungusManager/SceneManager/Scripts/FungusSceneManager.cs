@@ -187,6 +187,16 @@ namespace Fungus
         #endregion
 
 
+        #region Save
+
+        public void SetScenes(List<string> newScenes)
+        {
+            scenes = newScenes;
+        }
+
+        #endregion
+
+
         #region Variables
 
         void LoadVariables(string saveProfileKey = "")
