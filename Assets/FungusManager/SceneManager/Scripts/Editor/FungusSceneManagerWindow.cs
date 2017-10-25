@@ -327,7 +327,7 @@ namespace Fungus
             GUILayout.Space(20);
 
             // convert the above string into ligatures and print out into console
-            if (GUILayout.Button("Update scenes", GUILayout.ExpandWidth(false)))
+            if (GUILayout.Button("Update Scene List", GUILayout.ExpandWidth(false)))
             {
                 UpdateScenes();
             }
@@ -383,7 +383,7 @@ namespace Fungus
         {
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button("DELETE", GUILayout.ExpandWidth(false)))
+            if (GUILayout.Button("REMOVE", GUILayout.ExpandWidth(false)))
             {
                 RemoveSceneFromBuildSettings(sceneName); 
             }
