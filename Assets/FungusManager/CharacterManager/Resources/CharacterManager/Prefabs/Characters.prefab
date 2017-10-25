@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4090843940207410}
   m_Layer: 0
-  m_Name: FungusCharacters
+  m_Name: Characters
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

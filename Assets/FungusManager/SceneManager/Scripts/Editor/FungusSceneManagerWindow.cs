@@ -291,12 +291,22 @@ namespace Fungus
             if (!sceneManager.IsValid()) return;
 
             // add prefabs to scene
-            GameObject sceneManagerPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/SceneManager.prefab", typeof(GameObject));
+            GameObject sceneManagerPrefab = Resources.Load<GameObject>("SceneManager/Prefabs/SceneManager");
+            if (sceneManagerPrefab == null)
+            {
+                Debug.LogError("Couldn't load sceneManagerPrefab");
+                return;
+            }
             GameObject sceneManagerGameObject = PrefabUtility.InstantiatePrefab(sceneManagerPrefab, sceneManager) as GameObject;
             // disconnect this object from the prefab (in package folder) that created it
             PrefabUtility.DisconnectPrefabInstance(sceneManagerGameObject);
 
-            GameObject flowchartPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/SceneManager/Prefabs/Flowcharts.prefab", typeof(GameObject));
+            GameObject flowchartPrefab = Resources.Load<GameObject>("SceneManager/Prefabs/Flowcharts");
+            if (flowchartPrefab == null)
+            {
+                Debug.LogError("Couldn't load flowchartPrefab");
+                return;
+            }
             GameObject flowchartGameObject = PrefabUtility.InstantiatePrefab(flowchartPrefab, sceneManager) as GameObject;
             // disconnect this object from the prefab (in package folder) that created it
             PrefabUtility.DisconnectPrefabInstance(flowchartGameObject);
@@ -352,7 +362,7 @@ namespace Fungus
             // hyperzoom is optional
             if (addHyperzoomControls)
             {
-                GameObject hyperzoomPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/Hyperzoom/Prefabs/Hyperzoom.prefab", typeof(GameObject));
+                GameObject hyperzoomPrefab = Resources.Load<GameObject>("Hyperzoom/Prefabs/Hyperzoom");
                 GameObject hyperzoomGameObject = PrefabUtility.InstantiatePrefab(hyperzoomPrefab, newScene) as GameObject;
 
                 // controller input is optional
@@ -365,25 +375,26 @@ namespace Fungus
 
             if (createCharactersPrefab)
             {
+                GameObject charactersPrefab = Resources.Load<GameObject>("CharacterManager/Prefabs/Characters");
                 // this is the path to the prefab
-                string charactersPrefabPath = "Assets/FungusManager/CharacterManager/Prefabs/FungusCharacters.prefab";
+                //string charactersPrefabPath = "Assets/FungusManager/CharacterManager/Prefabs/FungusCharacters.prefab";
                 // find out if there already is a prefab in our project
-                string projectCharactersPrefabPath = GetPrefabPath("FungusCharacters");
+                string projectCharactersPrefabPath = GetPrefabPath("FungusCharacterManager");
                 // if we found something
                 if (projectCharactersPrefabPath != "")
                 {
                     // use this prefab path instead of the one in the project path
-                    charactersPrefabPath = projectCharactersPrefabPath;
+                    charactersPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(projectCharactersPrefabPath, typeof(GameObject));
                 }
 
-                GameObject charactersPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(charactersPrefabPath, typeof(GameObject));
+                //GameObject charactersPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(charactersPrefabPath, typeof(GameObject));
                 GameObject charactersGameObject = PrefabUtility.InstantiatePrefab(charactersPrefab, newScene) as GameObject;
 
                 // if this is a new prefab
                 if (projectCharactersPrefabPath == "")
                 {
                     // make sure this prefab goes into the same folder at the Start scene's folder
-                    string newPrefabFolder = path + "/FungusCharacters.prefab";
+                    string newPrefabFolder = path + "/FungusCharacterManager.prefab";
                     // save it to new position
                     GameObject newPrefab = PrefabUtility.CreatePrefab(newPrefabFolder, charactersGameObject) as GameObject;
                     // set this as our prefab
