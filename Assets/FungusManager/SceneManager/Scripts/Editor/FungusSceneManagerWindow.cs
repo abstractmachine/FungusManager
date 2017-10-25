@@ -217,33 +217,34 @@ namespace Fungus
 
         #region Create New Scene
 
-        protected Scene GetCleanScene(bool isSceneManager = false)
+        protected Scene GetCleanSceneManager()
         {
-            if (isSceneManager)
+            // get access to this scene
+            Scene activeScene = EditorSceneManager.GetActiveScene();
+            // does the scene need to be saved?
+            if (activeScene.isDirty)
             {
-                // get access to this scene
-                Scene activeScene = EditorSceneManager.GetActiveScene();
-                // does the scene need to be saved?
-                if (activeScene.isDirty)
-                {
-                    Debug.LogWarning("The active scene is not empty. Create a new scene before creating a SceneManager");
-                    return new Scene();
-                }
-                // get this scene's root objects
-                GameObject[] rootObjects = activeScene.GetRootGameObjects();
-                // if this is the scene manager, we have to clean up
-                // go through each root object
-                for (int i = rootObjects.Length - 1; i >= 0; i--)
-                {
-                    // reference to this root object
-                    GameObject rootObject = rootObjects[i];
-                    // destroy camera
-                    DestroyImmediate(rootObject);
-                }
-                // for(rootObjects.Length
-                return activeScene;
+                Debug.LogWarning("The active scene is not empty. Create a new scene before creating a SceneManager");
+                return new Scene();
             }
+            // get this scene's root objects
+            GameObject[] rootObjects = activeScene.GetRootGameObjects();
+            // if this is the scene manager, we have to clean up
+            // go through each root object
+            for (int i = rootObjects.Length - 1; i >= 0; i--)
+            {
+                // reference to this root object
+                GameObject rootObject = rootObjects[i];
+                // destroy camera
+                DestroyImmediate(rootObject);
+            }
+            // for(rootObjects.Length
+            return activeScene;
+        }
 
+
+        protected Scene GetCleanScene(bool emptyScene = true)
+        {
             Scene managerScene = GetSceneManagerScene();
 
             // close the other scene
@@ -265,7 +266,9 @@ namespace Fungus
                 SetSceneToActive(managerScene);
             }
 
-            return EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+            // return an empty or default scene depending on whether we're using the Hyperzoom system or not
+            if (emptyScene) return EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Additive);
+            return EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Additive);
 
         }
 
@@ -285,7 +288,7 @@ namespace Fungus
             // Create the SceneManager
 
             // either create a new sub-scene, or erase the current scene
-            Scene sceneManagerScene = GetCleanScene(true);
+            Scene sceneManagerScene = GetCleanSceneManager();
 
             // make sure the scene we got back was valid
             if (!sceneManagerScene.IsValid()) return;
@@ -380,7 +383,8 @@ namespace Fungus
             path = CleanUpPath(path);
 
             // either create a new sub-scene, or erase the current scene
-            Scene newScene = GetCleanScene(false);
+            // if we are using hyperzoom controls, the scene is empty, otherwise it's default: camera + (maybe) lights
+            Scene newScene = GetCleanScene(addHyperzoomControls);
 
             // make sure the scene we got back was valid
             if (!newScene.IsValid()) return;

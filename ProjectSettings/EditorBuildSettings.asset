@@ -9,11 +9,8 @@ EditorBuildSettings:
     path: Assets/ACrossingIndustry/Scenes/SceneManager.unity
     guid: b8bbd98837bfc496ab7191c7b50282c3
   - enabled: 1
-    path: 
-    guid: ef6e3e3c8f9914c3cba7b7badde3543a
-  - enabled: 1
     path: Assets/ACrossingIndustry/Scenes/Start.unity
     guid: 97ec20b09a35542d58f54c8f24bd7bd0
   - enabled: 1
-    path: Assets/ACrossingIndustry/Scenes/oisdhfqd.unity
-    guid: 063a07fd9733147c3a50551b079359e0
+    path: Assets/ACrossingIndustry/Scenes/Hyper.unity
+    guid: 4632a502ab7054fe394c602271422fd6
