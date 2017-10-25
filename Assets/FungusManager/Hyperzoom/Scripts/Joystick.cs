@@ -133,7 +133,8 @@ public class Joystick : MonoBehaviour
         // the left stick value
         leftStickValue = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         // the digital cross pad
-        Vector2 dPad = new Vector2(Input.GetAxis("dPad_Horizontal"), Input.GetAxis("dPad_Vertical"));
+        Vector2 dPad = Vector2.zero;
+        //Vector2 dPad = new Vector2(Input.GetAxis("dPad_Horizontal"), Input.GetAxis("dPad_Vertical"));
 
         // if pushing all the way to the left
         if (dPad.y < -0.75f)
