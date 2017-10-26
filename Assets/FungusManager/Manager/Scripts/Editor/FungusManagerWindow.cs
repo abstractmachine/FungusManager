@@ -61,7 +61,14 @@ namespace Fungus
 
         virtual protected void OnGUI()
         {
-
+            // if there was a change in one of the assets
+            if (FungusManagerAssetPostProcessor.didChange)
+            {
+                // recheck the state of the scenes
+                CheckScenes();
+                // reset flag
+                FungusManagerAssetPostProcessor.ResetFlag();
+            }
         }
 
 
@@ -475,7 +482,7 @@ namespace Fungus
             foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
             {
                 // ignore this one
-                if (buildScene.path.EndsWith(unitySceneName)) continue;
+                if (buildScene.path.EndsWith("/" + unitySceneName)) continue;
                 // add to list
                 editorBuildSettingsScenes.Add(buildScene);
             }

@@ -64,66 +64,102 @@ namespace Fungus
             //{
             //    LoadSceneButton("Load 'Start' scene", GetSceneAssetPath("SceneManager.unity"));
             //}
+
+            // check to see if there is at least one scene manager in the project
+            if (!projectContainsStartScene)
+            {
+                GUILayout.FlexibleSpace();
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+
+                GUILayout.BeginVertical();
+
+                GUILayout.Label("There must be a managed 'Start' scene in order to manage Characters.");
+                GUILayout.Label("Open SceneManager window and create a scene named 'Start' with 'Create Characters prefab' activated.");
+
+                GUILayout.EndVertical();
+
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+                GUILayout.FlexibleSpace();
+            }
+            else
+            {
+                if (!startSceneIsLoaded)
+                {
+                    // load the SceneManager and place it on top
+                    LoadSceneButton("SceneManager", GetSceneAssetPath("SceneManager.unity"), true);
+                }
+
+                // if the scene manager is not already loaded
+                if (startSceneIsLoaded)
+                {
+                    DisplayCharacterManager();
+                    return;
+                }
+            }
+            // if (!projectContainsStartScene
+
         }
 
         #endregion
 
 
-#region Display
+        #region Display
 
-        //private void DisplayCharacterManager()
-        //{
-        //    // spacing
+        private void DisplayCharacterManager()
+        {
+            //    // spacing
 
-        //    GUILayout.Space(20);
+            //    GUILayout.Space(20);
 
-        //    // scene controls
+            //    // scene controls
 
-        //    GUILayout.BeginHorizontal();
+            //    GUILayout.BeginHorizontal();
 
-        //    GUILayout.Space(20);
+            //    GUILayout.Space(20);
 
-        //    ////////////////////// CHARACTERS ////////////////////////////
+            //    ////////////////////// CHARACTERS ////////////////////////////
 
-        //    GUILayout.BeginVertical();
+            //    GUILayout.BeginVertical();
 
-        //    newCharacterFoldout = EditorGUILayout.Foldout(newCharacterFoldout, "New Character");
+            //    newCharacterFoldout = EditorGUILayout.Foldout(newCharacterFoldout, "New Character");
 
-        //    if (newCharacterFoldout)
-        //    {
-        //        characterName = EditorGUILayout.TextField("", characterName);
+            //    if (newCharacterFoldout)
+            //    {
+            //        characterName = EditorGUILayout.TextField("", characterName);
 
-        //        GUILayout.BeginHorizontal();
+            //        GUILayout.BeginHorizontal();
 
-        //        // convert the above string into ligatures and print out into console
-        //        if (GUILayout.Button("New Character"))
-        //        {
-        //            CreateCharacter(characterName);
-        //        }
+            //        // convert the above string into ligatures and print out into console
+            //        if (GUILayout.Button("New Character"))
+            //        {
+            //            CreateCharacter(characterName);
+            //        }
 
-        //        GUILayout.EndHorizontal();
+            //        GUILayout.EndHorizontal();
 
-        //    } // if (newCharacter)
+            //    } // if (newCharacter)
 
-        //    GUILayout.Space(20);
+            //    GUILayout.Space(20);
 
-        //    charactersFoldout = EditorGUILayout.Foldout(charactersFoldout, "Current Characters (" + characters.Count + ")");
+            //    charactersFoldout = EditorGUILayout.Foldout(charactersFoldout, "Current Characters (" + characters.Count + ")");
 
-        //    if (charactersFoldout)
-        //    {
-        //        DisplayCharacters();
-        //    }
+            //    if (charactersFoldout)
+            //    {
+            //        DisplayCharacters();
+            //    }
 
-        //    GUILayout.EndVertical();
+            //    GUILayout.EndVertical();
 
-        //    GUILayout.FlexibleSpace();
+            //    GUILayout.FlexibleSpace();
 
-        //    GUILayout.EndHorizontal();
+            //    GUILayout.EndHorizontal();
 
-        //    // FLEXIBLE SPACE
+            //    // FLEXIBLE SPACE
 
 
-        //}
+        }
 
 
         //private void DisplayCharacters()

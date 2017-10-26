@@ -26,6 +26,8 @@ namespace Fungus
 
         private Object addSceneObject = null;
 
+        private Vector2 displayScenesScroll = Vector2.zero;
+
         #endregion
 
 
@@ -48,16 +50,6 @@ namespace Fungus
         {
             base.OnGUI();
 
-            // if there was a change in one of the assets
-            if (FungusManagerAssetPostProcessor.didChange)
-            {
-                // recheck the state of the scenes
-                CheckScenes();
-                // reset flag
-                FungusManagerAssetPostProcessor.ResetFlag();
-            }
-
-
             // check to see if there is at least one scene manager in the project
             if (!projectContainsSceneManager)
             {
@@ -67,13 +59,10 @@ namespace Fungus
 
                 GUILayout.BeginVertical();
 
-                if (!projectContainsSceneManager)
+                if (GUILayout.Button("Create 'SceneManager'"))
                 {
-                    if (GUILayout.Button("Create 'SceneManager'"))
-                    {
-                        CreateFungusSceneManager();
-                        return;
-                    }
+                    CreateFungusSceneManager();
+                    return;
                 }
 
                 GUILayout.EndVertical();
@@ -119,13 +108,9 @@ namespace Fungus
         {
             // spacing
 
-            GUILayout.Space(20);
+            //GUILayout.Space(20);
 
             // scene controls
-
-            GUILayout.BeginHorizontal();
-
-            GUILayout.Space(20);
 
             GUILayout.BeginVertical();
 
@@ -197,25 +182,6 @@ namespace Fungus
             }
 
             GUILayout.EndVertical();
-
-            GUILayout.Space(40);
-
-            GUILayout.BeginVertical();
-
-            GUILayout.Space(20);
-
-            ////availableScenesFoldout = EditorGUILayout.Foldout(availableScenesFoldout, "Available Scenes (" + availableScenes.Count + ")");
-
-            ////if (availableScenesFoldout)
-            ////{
-            ////    DisplayAvailableScenes();
-            ////}
-
-            GUILayout.EndVertical();
-
-            GUILayout.Space(20);
-
-            GUILayout.EndHorizontal();
 
             //// FLEXIBLE SPACE
         }
@@ -475,6 +441,8 @@ namespace Fungus
 
             List<string> scenes = fungusSceneManagerScript.scenes;
 
+            displayScenesScroll = EditorGUILayout.BeginScrollView(displayScenesScroll);
+
             foreach (string scene in scenes)
             {
                 if (scene != null)
@@ -482,6 +450,8 @@ namespace Fungus
                     DisplayScene(scene);
                 }
             }
+
+            EditorGUILayout.EndScrollView();
         }
 
 
