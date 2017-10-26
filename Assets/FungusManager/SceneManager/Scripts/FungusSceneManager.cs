@@ -131,7 +131,7 @@ namespace Fungus
             {
                 return;
             }
-            // go through all the scenes
+            // moonwalk through all the scenes
             for (int i = SceneManager.sceneCount-1; i >=0 ; i--)
             {
                 // get this scene
@@ -156,6 +156,8 @@ namespace Fungus
             // if  there is no current scene (for example, at the beginning of the game)
             if (currentScene.Length == 0 || !hyperzoomIsPresent)
             {
+                SaveVariables();
+                CloseOtherScenes();
                 LoadScene(sceneName);
             }
             else // otherwise, request this to be the next scene
