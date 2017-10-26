@@ -8,3 +8,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SceneManager.unity
     guid: 0436533f621b94799a45ea6bf438cff0
+  - enabled: 1
+    path: Assets/Scenes/Start.unity
+    guid: 916d05103d71041feb8d2c7ca91988e9
+  - enabled: 1
+    path: Assets/Scenes/isdohf.unity
+    guid: 595918fa379584e06829d42e62740431

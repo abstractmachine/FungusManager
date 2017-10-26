@@ -468,12 +468,14 @@ namespace Fungus
 
             if (GUILayout.Button("LOAD", GUILayout.ExpandWidth(false)))
             {
-                Debug.Log("Function not yet handled");
+                CloseOpenScenes();
+                string path = GetSceneAssetPath(sceneName + ".unity");
+                LoadManagedScene(path, OpenSceneMode.Additive, false);
             }
 
             if (GUILayout.Button("CLOSE", GUILayout.ExpandWidth(false)))
             {
-                Debug.Log("Function not yet handled");
+                CloseOpenScene(sceneName);
             }
 
             GUILayout.Space(2);

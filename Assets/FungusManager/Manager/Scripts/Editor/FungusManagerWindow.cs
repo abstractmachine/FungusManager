@@ -408,6 +408,44 @@ namespace Fungus
         }
 
 
+        protected void CloseOpenScenes()
+        {   
+            Scene managerScene = GetSceneManagerScene();
+
+            // close the other scene
+            for (int i = EditorSceneManager.sceneCount-1; i >= 0; i--)
+            {
+                Scene scene = EditorSceneManager.GetSceneAt(i);
+                // leave manager scene
+                if (managerScene == scene) continue;
+                // close anything else
+                if (!EditorSceneManager.CloseScene(scene, true))
+                {
+                    Debug.LogError("Couldn't close scene " + scene.name);
+                    return;
+                }
+            }
+        }
+
+
+        protected void CloseOpenScene(string sceneName)
+        {
+            // close the other scene
+            for (int i = EditorSceneManager.sceneCount-1; i >= 0; i--)
+            {
+                Scene scene = EditorSceneManager.GetSceneAt(i);
+                // leave manager scene
+                if (sceneName != scene.name) continue;
+                // close anything else
+                if (!EditorSceneManager.CloseScene(scene, true))
+                {
+                    Debug.LogError("Couldn't close scene " + scene.name);
+                    return;
+                }
+            }
+        }
+
+
         protected void SetSceneToActive(Scene scene)
         {
             EditorSceneManager.SetActiveScene(scene);
