@@ -131,7 +131,7 @@ namespace Fungus
             {
                 return;
             }
-            // moonwalk through all the scenes
+            // go through all the scenes
             for (int i = SceneManager.sceneCount-1; i >=0 ; i--)
             {
                 // get this scene
@@ -154,7 +154,12 @@ namespace Fungus
             // verify that hyperzoom is present in the scene
             bool hyperzoomIsPresent = (FindObjectOfType<Hyperzoom>() != null);
             // if  there is no current scene (for example, at the beginning of the game)
-            if (currentScene.Length == 0 || !hyperzoomIsPresent)
+            if (currentScene.Length == 0)
+            {
+                CloseOtherScenes();
+                LoadScene(sceneName);
+            }
+            else if (!hyperzoomIsPresent)
             {
                 SaveVariables();
                 CloseOtherScenes();
