@@ -6,6 +6,8 @@ using UnityEditor.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
+// TODO: Fix Audio Listener issue when no Hyperzoom is present
+
 namespace Fungus
 {
     public class FungusSceneManagerWindow : FungusManagerWindow
@@ -464,7 +466,17 @@ namespace Fungus
                 RemoveSceneFromBuildSettings(sceneName); 
             }
 
-            GUILayout.Space(20);
+            if (GUILayout.Button("LOAD", GUILayout.ExpandWidth(false)))
+            {
+                Debug.Log("Function not yet handled");
+            }
+
+            if (GUILayout.Button("CLOSE", GUILayout.ExpandWidth(false)))
+            {
+                Debug.Log("Function not yet handled");
+            }
+
+            GUILayout.Space(2);
 
             GUILayout.Label(sceneName);
 

@@ -5,6 +5,8 @@ using UnityEditor.SceneManagement;
 using System.IO;
 using System.Collections.Generic;
 
+// TODO: Add Open/Close buttons to scenes in editor window
+
 namespace Fungus
 {
     public class FungusManagerWindow : EditorWindow

@@ -68,20 +68,16 @@ namespace Fungus
             // check to see if there is at least one scene manager in the project
             if (!projectContainsStartScene)
             {
-                GUILayout.FlexibleSpace();
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
+                //string textLabel = "There must be a managed 'Start' scene in order to manage Characters. ";
+                //textLabel += "Open SceneManager window and create a scene named 'Start' with 'Create Characters prefab' activated.";
 
-                GUILayout.BeginVertical();
+                //GUIStyle style = GUI.skin.box;
+                //style.alignment = TextAnchor.MiddleCenter;
 
-                GUILayout.Label("There must be a managed 'Start' scene in order to manage Characters.");
-                GUILayout.Label("Open SceneManager window and create a scene named 'Start' with 'Create Characters prefab' activated.");
+                //EditorWindow window = EditorWindow.GetWindow<FungusCharacterManagerWindow>("Characters");
 
-                GUILayout.EndVertical();
-
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-                GUILayout.FlexibleSpace();
+                //// make the Box double sized
+                //GUI.Box(new Rect(0.0f, 0.0f, window.position.width, window.position.height), textLabel);
             }
             else
             {

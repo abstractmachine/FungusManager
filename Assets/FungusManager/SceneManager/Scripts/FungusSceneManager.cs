@@ -6,6 +6,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using Fungus;
 
+// TODO: Remove extra scene when starting with SceneManager and another scene already present
+// TODO: Remove EventSystem in non-Hyperzoomed scenes
+// TODO: RequestScene automatically runs when Hyperzoom is not present
+
 namespace Fungus
 {
     public class FungusSceneManager : MonoBehaviour
@@ -112,9 +116,32 @@ namespace Fungus
 
         void Start()
         {
+            // check how many scenes are present
+            CloseOtherScenes();
             // get the camera in this manager
             managerCamera = GetComponentInChildren<Camera>();
             backgroundColor = managerCamera.backgroundColor;
+        }
+
+
+        void CloseOtherScenes()
+        {
+            // if no other scenes present
+            if (SceneManager.sceneCount < 2)
+            {
+                return;
+            }
+            // go through all the scenes
+            for (int i = SceneManager.sceneCount-1; i >=0 ; i--)
+            {
+                // get this scene
+                Scene scene = SceneManager.GetSceneAt(i);
+                // if this is our current scene, move on to the next
+                if (scene == this.gameObject.scene) continue;
+                // otherwise close the scene
+                MassacreEverythingInScene(scene.name);
+            }
+
         }
 
         #endregion
@@ -124,8 +151,10 @@ namespace Fungus
 
         void RequestNextScene(string sceneName)
         {
+            // verify that hyperzoom is present in the scene
+            bool hyperzoomIsPresent = (FindObjectOfType<Hyperzoom>() != null);
             // if  there is no current scene (for example, at the beginning of the game)
-            if (currentScene.Length == 0)
+            if (currentScene.Length == 0 || !hyperzoomIsPresent)
             {
                 LoadScene(sceneName);
             }
