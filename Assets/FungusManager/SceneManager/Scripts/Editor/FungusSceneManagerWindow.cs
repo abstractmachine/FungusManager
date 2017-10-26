@@ -441,6 +441,8 @@ namespace Fungus
         {
             FungusSceneManager fungusSceneManagerScript = GetFungusSceneManagerScript();
 
+            if (fungusSceneManagerScript == null) return;
+
             List<string> scenes = fungusSceneManagerScript.scenes;
 
             displayScenesScroll = EditorGUILayout.BeginScrollView(displayScenesScroll);
