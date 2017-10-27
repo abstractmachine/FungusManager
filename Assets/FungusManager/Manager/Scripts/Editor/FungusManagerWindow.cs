@@ -463,13 +463,23 @@ namespace Fungus
 
         #region BuildSettings
 
-        protected void SaveSceneToBuildSettings(Scene newScene)
+        protected void ClearBuildSettings()
         {
-            AddScenePathToBuildSettings(newScene.path);
+            // this is the final list of scenes
+            List<EditorBuildSettingsScene> finalSceneList = new List<EditorBuildSettingsScene>();
+            // Set the Build Settings window Scene list
+            EditorBuildSettings.scenes = finalSceneList.ToArray();
+            // save in local SceneManager variable
+            SaveBuildSettingsInSceneManager();
+        }
+
+        protected void SaveSceneToBuildSettings(Scene newScene, bool isSceneManager = false)
+        {
+            AddScenePathToBuildSettings(newScene.path, isSceneManager);
         }
 
 
-        protected void AddScenePathToBuildSettings(string addScenePath)
+        protected void AddScenePathToBuildSettings(string addScenePath, bool isSceneManager = false)
         {
             // this is the final list of scenes
             List<EditorBuildSettingsScene> finalSceneList = new List<EditorBuildSettingsScene>();
@@ -478,7 +488,10 @@ namespace Fungus
             Scene sceneManagerScene = GetSceneManagerScene();
 
             // always add the SceneManager first
-            finalSceneList.Add(new EditorBuildSettingsScene(sceneManagerScene.path, true));
+            if (!isSceneManager)
+            {
+                finalSceneList.Add(new EditorBuildSettingsScene(sceneManagerScene.path, true));
+            }
 
             bool newSceneAlreadyInBuildSettings = false;
 
@@ -489,6 +502,7 @@ namespace Fungus
                 {
                     if (buildScene.path == checkScene.path) thisSceneAlreadyInList = true;
                     if (buildScene.path == addScenePath) newSceneAlreadyInBuildSettings = true;
+                    if (checkScene.path == addScenePath) newSceneAlreadyInBuildSettings = true;
                 }
                 // add to list
                 if (!thisSceneAlreadyInList)

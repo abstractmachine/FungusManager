@@ -321,7 +321,8 @@ namespace Fungus
             }
 
             // add this new scene to the build settings
-            SaveSceneToBuildSettings(sceneManagerScene);
+            ClearBuildSettings();
+            SaveSceneToBuildSettings(sceneManagerScene, true);
 
             // if the SceneManager is loaded, make it active
             SetSceneToActive(sceneManagerScene);
