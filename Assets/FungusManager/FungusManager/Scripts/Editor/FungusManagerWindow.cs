@@ -16,6 +16,7 @@ namespace Fungus
 
         protected bool projectContainsSceneManager = false;
         protected bool projectContainsStartScene = false;
+        protected bool projectContainsHyperzoom = false;
 
         protected bool sceneManagerIsLoaded = false;
         protected bool sceneManagerIsActive = false;
@@ -109,6 +110,7 @@ namespace Fungus
 
             CheckForSceneManager();
             CheckForStartScene();
+            CheckForHyperzoom();
         }
 
 
@@ -123,6 +125,12 @@ namespace Fungus
         {
             startSceneIsLoaded = IsSceneLoaded(GetLoadedSceneByName("Start"));
             startSceneIsActive = IsSceneActive(GetLoadedSceneByName("Start"));
+        }
+
+
+        virtual protected void CheckForHyperzoom()
+        {
+            
         }
 
 

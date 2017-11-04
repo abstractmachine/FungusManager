@@ -368,20 +368,20 @@ namespace Fungus
 
             // add prefabs to scene
 
-            // hyperzoom is optional
-            if (addHyperzoomControls)
-            {
-                GameObject hyperzoomPrefab = Resources.Load<GameObject>("Hyperzoom/Prefabs/Hyperzoom");
-                GameObject hyperzoomGameObject = PrefabUtility.InstantiatePrefab(hyperzoomPrefab, newScene) as GameObject;
+            //// hyperzoom is optional
+            //if (addHyperzoomControls)
+            //{
+            //    GameObject hyperzoomPrefab = Resources.Load<GameObject>("Hyperzoom/Prefabs/Hyperzoom");
+            //    GameObject hyperzoomGameObject = PrefabUtility.InstantiatePrefab(hyperzoomPrefab, newScene) as GameObject;
 
-                // controller input is optional
-                if (!addControllerInput)
-                {
-                    Joystick joystick = hyperzoomGameObject.GetComponent<Joystick>();
-                    DestroyImmediate(joystick);
-                }
-            }
-            // if (addHyperzoomControls)
+            //    // controller input is optional
+            //    if (!addControllerInput)
+            //    {
+            //        Joystick joystick = hyperzoomGameObject.GetComponent<Joystick>();
+            //        DestroyImmediate(joystick);
+            //    }
+            //}
+            //// if (addHyperzoomControls)
 
             if (createCharactersPrefab)
             {

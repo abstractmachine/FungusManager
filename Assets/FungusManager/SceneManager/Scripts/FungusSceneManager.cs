@@ -57,6 +57,8 @@ namespace Fungus
 
 		private Color backgroundColor = Color.gray;
 
+        private bool hyperzoomIsPresent = false;
+
         #endregion
 
 
@@ -72,12 +74,12 @@ namespace Fungus
             SceneManager.sceneLoaded += SceneManagerLoadedScene;
             SceneManager.sceneUnloaded += SceneManagerUnloadedScene;
             // changes coming from interactions with the Focus system
-            Hyperzoom.ZoomInStarted += ZoomInStarted;
-            Hyperzoom.ZoomInFinished += ZoomInFinished;
-            Hyperzoom.ZoomOutStarted += ZoomOutStarted;
-            Hyperzoom.ZoomOutFinished += ZoomOutFinished;
-            // changes to the background color
-            HyperzoomManagement.BackgroundColorChanged += BackgroundColorChanged;
+            //Hyperzoom.ZoomInStarted += ZoomInStarted;
+            //Hyperzoom.ZoomInFinished += ZoomInFinished;
+            //Hyperzoom.ZoomOutStarted += ZoomOutStarted;
+            //Hyperzoom.ZoomOutFinished += ZoomOutFinished;
+            //// changes to the background color
+            //HyperzoomManagement.BackgroundColorChanged += BackgroundColorChanged;
             // events from Flowchart Block commands
             RequestManagedScene.RequestScene += RequestNextScene;
         }
@@ -93,12 +95,12 @@ namespace Fungus
             SceneManager.sceneLoaded -= SceneManagerLoadedScene;
             SceneManager.sceneUnloaded -= SceneManagerUnloadedScene;
             // changes coming from interactions with the Focus system
-            Hyperzoom.ZoomInStarted -= ZoomInStarted;
-            Hyperzoom.ZoomInFinished -= ZoomInFinished;
-            Hyperzoom.ZoomOutStarted -= ZoomOutStarted;
-            Hyperzoom.ZoomOutFinished -= ZoomOutFinished;
-            // changes to the background color
-            HyperzoomManagement.BackgroundColorChanged -= BackgroundColorChanged;
+            //Hyperzoom.ZoomInStarted -= ZoomInStarted;
+            //Hyperzoom.ZoomInFinished -= ZoomInFinished;
+            //Hyperzoom.ZoomOutStarted -= ZoomOutStarted;
+            //Hyperzoom.ZoomOutFinished -= ZoomOutFinished;
+            //// changes to the background color
+            //HyperzoomManagement.BackgroundColorChanged -= BackgroundColorChanged;
             // events from Flowchart Block commands
             RequestManagedScene.RequestScene -= RequestNextScene;
         }
@@ -116,6 +118,10 @@ namespace Fungus
 
         void Start()
         {
+            Type hyperzoomType = Type.GetType("Hyperzoom");
+            // verify that hyperzoom is present in the scene
+            hyperzoomIsPresent = FindObjectOfType(hyperzoomType) != null;
+
             // check how many scenes are present
             CloseOtherScenes();
             // get the camera in this manager
@@ -151,8 +157,6 @@ namespace Fungus
 
         void RequestNextScene(string sceneName)
         {
-            // verify that hyperzoom is present in the scene
-            bool hyperzoomIsPresent = (FindObjectOfType<Hyperzoom>() != null);
             // if  there is no current scene (for example, at the beginning of the game)
             if (currentScene.Length == 0)
             {
