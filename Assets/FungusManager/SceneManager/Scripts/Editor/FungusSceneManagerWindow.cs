@@ -15,7 +15,10 @@ namespace Fungus
         #region Members
 
         private bool addHyperzoomControls = true;
-        private bool addControllerInput = true;
+        private bool addHyperzoomJoystickInput = true;
+        private bool addHyperzoomKeyboardInput = true;
+        private bool addHyperzoomPointerInput = true;
+
         private bool createCharactersPrefab = true;
 
         private string lastSaveFolder = "Assets/";
@@ -36,7 +39,7 @@ namespace Fungus
         #region Window
 
         // Add menu item
-        [MenuItem("Tools/Fungus/Scene Manager")]
+        [MenuItem("Tools/Fungus Manager/Scene Manager Window")]
         public static void ShowWindow()
         {
             //Show existing window instance. If one doesn't exist, make one.
@@ -94,14 +97,28 @@ namespace Fungus
 
         void GUIDrawSceneOptions()
         {
-            createCharactersPrefab = GUILayout.Toggle(createCharactersPrefab, "Create Characters prefab", GUILayout.MinWidth(80), GUILayout.MaxWidth(200));
+            // createCharactersPrefab = GUILayout.Toggle(createCharactersPrefab, "Create Characters prefab", GUILayout.MinWidth(80), GUILayout.MaxWidth(200));
 
-            addHyperzoomControls = GUILayout.Toggle(addHyperzoomControls, "Add Hyperzoom", GUILayout.MinWidth(80), GUILayout.MaxWidth(200));
-
-            // the joystick controller is attached to the hyperzoom
-            if (addHyperzoomControls)
+            if (projectContainsHyperzoom)
             {
-                addControllerInput = GUILayout.Toggle(addControllerInput, "Add Joystick Controller input");
+                addHyperzoomControls = GUILayout.Toggle(addHyperzoomControls, "Add Hyperzoom", GUILayout.MinWidth(80), GUILayout.MaxWidth(200));
+
+                // the joystick controller is attached to the hyperzoom
+                if (addHyperzoomControls)
+                {
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Space(20);
+                    addHyperzoomPointerInput = GUILayout.Toggle(addHyperzoomPointerInput, "Touch & Mouse Pointer");
+                    GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Space(20);
+                    addHyperzoomJoystickInput = GUILayout.Toggle(addHyperzoomJoystickInput, "Joystick Controller");
+                    GUILayout.EndHorizontal();
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Space(20);
+                    addHyperzoomKeyboardInput = GUILayout.Toggle(addHyperzoomKeyboardInput, "Keyboard");
+                    GUILayout.EndHorizontal();
+                } 
             }
         }
 
@@ -252,7 +269,7 @@ namespace Fungus
         protected void CreateFungusSceneManager()
         {
             // tell the user to select a path
-            string path = EditorUtility.SaveFolderPanel("Select a folder for the 'SceneManager' scene", "Assets/", lastSaveFolder);
+            string path = EditorUtility.SaveFolderPanel("Select a folder for the 'SceneManager' scene", lastSaveFolder, "");
             lastSaveFolder = path; // CleanUpPath(path + "/");
 
             // check the path
@@ -375,10 +392,22 @@ namespace Fungus
             //    GameObject hyperzoomGameObject = PrefabUtility.InstantiatePrefab(hyperzoomPrefab, newScene) as GameObject;
 
             //    // controller input is optional
-            //    if (!addControllerInput)
+            //    if (!addHyperzoomJoystickInput)
             //    {
-            //        Joystick joystick = hyperzoomGameObject.GetComponent<Joystick>();
-            //        DestroyImmediate(joystick);
+            //        HyperzoomJoystick hyperzoomJoystick = hyperzoomGameObject.GetComponent<HyperzoomJoystick>();
+            //        DestroyImmediate(hyperzoomJoystick);
+            //    }
+            //    // controller input is optional
+            //    if (!addHyperzoomKeyboardInput)
+            //    {
+            //        HyperzoomKeyboard hyperzoomKeyboard = hyperzoomGameObject.GetComponent<HyperzoomKeyboard>();
+            //        DestroyImmediate(hyperzoomKeyboard);
+            //    }
+            //    // controller input is optional
+            //    if (!addHyperzoomPointerInput)
+            //    {
+            //        HyperzoomPointer hyperzoomPointer = hyperzoomGameObject.GetComponent<HyperzoomPointer>();
+            //        DestroyImmediate(hyperzoomPointer);
             //    }
             //}
             //// if (addHyperzoomControls)

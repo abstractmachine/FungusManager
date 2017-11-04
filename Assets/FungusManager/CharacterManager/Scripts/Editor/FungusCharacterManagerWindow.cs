@@ -27,7 +27,7 @@ namespace Fungus
         #region Window
 
         // Add menu item
-        [MenuItem("Tools/Fungus/Character Manager")]
+        [MenuItem("Tools/Fungus Manager/Character Manager Window")]
         public static void ShowWindow()
         {
             //Show existing window instance. If one doesn't exist, make one.

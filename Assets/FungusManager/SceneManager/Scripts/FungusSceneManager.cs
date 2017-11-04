@@ -73,13 +73,6 @@ namespace Fungus
             // events coming directly from Unity's SceneManager
             SceneManager.sceneLoaded += SceneManagerLoadedScene;
             SceneManager.sceneUnloaded += SceneManagerUnloadedScene;
-            // changes coming from interactions with the Focus system
-            //Hyperzoom.ZoomInStarted += ZoomInStarted;
-            //Hyperzoom.ZoomInFinished += ZoomInFinished;
-            //Hyperzoom.ZoomOutStarted += ZoomOutStarted;
-            //Hyperzoom.ZoomOutFinished += ZoomOutFinished;
-            //// changes to the background color
-            //HyperzoomManagement.BackgroundColorChanged += BackgroundColorChanged;
             // events from Flowchart Block commands
             RequestManagedScene.RequestScene += RequestNextScene;
         }
@@ -94,13 +87,6 @@ namespace Fungus
             // events coming directly from Unity's SceneManager
             SceneManager.sceneLoaded -= SceneManagerLoadedScene;
             SceneManager.sceneUnloaded -= SceneManagerUnloadedScene;
-            // changes coming from interactions with the Focus system
-            //Hyperzoom.ZoomInStarted -= ZoomInStarted;
-            //Hyperzoom.ZoomInFinished -= ZoomInFinished;
-            //Hyperzoom.ZoomOutStarted -= ZoomOutStarted;
-            //Hyperzoom.ZoomOutFinished -= ZoomOutFinished;
-            //// changes to the background color
-            //HyperzoomManagement.BackgroundColorChanged -= BackgroundColorChanged;
             // events from Flowchart Block commands
             RequestManagedScene.RequestScene -= RequestNextScene;
         }
@@ -448,7 +434,7 @@ namespace Fungus
 
         #region Scene Changes
 
-        void ZoomInStarted(string objectName)
+        public void ZoomInStarted(string objectName)
         {
             // if there is a listener
             if (ZoomedIn != null)
@@ -465,7 +451,7 @@ namespace Fungus
         }
 
 
-        void ZoomOutStarted(string uslessString)
+        public void ZoomOutStarted(string uslessString)
         {
             // if there is a listener
             if (ZoomedOut != null)
@@ -482,7 +468,7 @@ namespace Fungus
         }
 
 
-        void ZoomInFinished(string uslessString)
+        public void ZoomInFinished(string uslessString)
         {
             // if there is no requested scene
             if (requestedScene.Length == 0)
@@ -495,7 +481,7 @@ namespace Fungus
         }
 
 
-        void ZoomOutFinished(string uslessString)
+        public void ZoomOutFinished(string uslessString)
         {
             // if there is no requested scene
             if (requestedScene.Length == 0)
@@ -533,7 +519,7 @@ namespace Fungus
         #region Callbacks
 
         /// <summary>
-        /// Raises the scene lodaded event.
+        /// Handles the scene lodaded event.
         /// </summary>
         /// <param name="scene">Scene.</param>
         /// <param name="mode">Mode.</param>
@@ -552,22 +538,11 @@ namespace Fungus
                 // fire the event in the flowchart
                 SceneLoaded(scene.name);
             }
-
-			//      // ignore Manager scene
-			//      if (scene == this.gameObject.scene) return;
-			//      // get the scene loaded script in the manager
-			//SceneLoaded sceneLoadedScript = managerFlowchart.GetComponent<SceneLoaded>();
-			// make sure that script is available
-			//if (sceneLoadedScript == null) {
-			//    Debug.LogError("SceneLoaded unavailable in Flowchart");
-			//}
-			// fire the event in the flowchart
-			//sceneLoadedScript.OnSceneLoaded(scene.name);
 		}
 
 
         /// <summary>
-        /// Raises the scene unloaded event.
+        /// Handles the scene unloaded event.
         /// </summary>
         /// <param name="scene">Scene.</param>
 
@@ -626,7 +601,7 @@ namespace Fungus
 
         #region BackgroundColor
 
-        void BackgroundColorChanged(Color newColor)
+        public void BackgroundColorChanged(Color newColor)
         {
             if (fadeBackgroundColor)
             {

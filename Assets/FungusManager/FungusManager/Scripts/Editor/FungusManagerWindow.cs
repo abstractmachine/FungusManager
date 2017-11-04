@@ -130,7 +130,22 @@ namespace Fungus
 
         virtual protected void CheckForHyperzoom()
         {
-            
+            // start under the assumption that it doesn't exist
+            projectContainsHyperzoom = false;
+            // look inside those valid (non-Fungus) folders for Scenes
+            string[] validScenes = {"Assets/Hyperzoom"};
+            string[] foundScenes = AssetDatabase.FindAssets("t:Prefab", validScenes);
+            // go through each scene
+            foreach (string scene in foundScenes)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(scene);
+                // is this the one we're looking for?
+                if (path.EndsWith("Hyperzoom.prefab"))
+                {
+                    projectContainsHyperzoom = true;
+                    return;
+                }
+            }
         }
 
 
@@ -252,7 +267,7 @@ namespace Fungus
             foreach (string subfolder in rootFolders)
             {
                 // ignore these subfolders
-                if (subfolder.EndsWith("Fungus") || subfolder.EndsWith("FungusManager")) continue;
+                if (subfolder.EndsWith("Fungus") || subfolder.EndsWith("FungusManager") || subfolder.EndsWith("Hyperzoom") || subfolder.EndsWith("Cinemachine")) continue;
                 // ok, this is valid
                 searchableFolders.Add("Assets/" + new DirectoryInfo(subfolder).Name);
             }
