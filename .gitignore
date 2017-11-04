@@ -6,7 +6,9 @@
 /Assets/AssetStoreTools*
 
 /Assets/Hyperzoom/
+/Assets/Hyperzoom.meta
 /Assets/Cinemachine/
+/Assets/Cinemachine.meta
 
 # Visual Studio 2015 cache directory
 /.vs/
