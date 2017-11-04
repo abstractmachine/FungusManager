@@ -140,7 +140,7 @@ namespace Fungus
             {
                 string path = AssetDatabase.GUIDToAssetPath(scene);
                 // is this the one we're looking for?
-                if (path.EndsWith("Hyperzoom.prefab"))
+                if (path.EndsWith("Cameras.prefab"))
                 {
                     projectContainsHyperzoom = true;
                     return;

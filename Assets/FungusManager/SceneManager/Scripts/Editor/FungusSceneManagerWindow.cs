@@ -422,35 +422,13 @@ namespace Fungus
 
         void CreateHyperzoom(Scene newScene)
         {
-            GameObject mainCameraPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/MainCamera.prefab", typeof(GameObject));
-            GameObject mainCameraGameObject = PrefabUtility.InstantiatePrefab(mainCameraPrefab, newScene) as GameObject;
-            mainCameraGameObject.name = "Main";
+            GameObject camerasPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/Cameras.prefab", typeof(GameObject));
+            GameObject camerasGameObject = PrefabUtility.InstantiatePrefab(camerasPrefab, newScene) as GameObject;
 
-            GameObject freeLookCameraPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/FreeLookCamera.prefab", typeof(GameObject));
-            GameObject freeLookCameraGameObject = PrefabUtility.InstantiatePrefab(freeLookCameraPrefab, newScene) as GameObject;
-            freeLookCameraGameObject.name = "Free-Look";
-
-            GameObject birdsEyeCameraPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/BirdsEyeViewCamera.prefab", typeof(GameObject));
-            GameObject birdsEyeCameraGameObject = PrefabUtility.InstantiatePrefab(birdsEyeCameraPrefab, newScene) as GameObject;
-            birdsEyeCameraGameObject.name = "Bird's-Eye View";
-
-            GameObject hyperzoomPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/Hyperzoom.prefab", typeof(GameObject));
-            GameObject hyperzoomGameObject = PrefabUtility.InstantiatePrefab(hyperzoomPrefab, newScene) as GameObject;
-
-            // create a new empty object
-            GameObject camerasGameObject = new GameObject("Cameras");
-            // move instantiated gameObject to root of scene
-            camerasGameObject.transform.SetParent(hyperzoomGameObject.transform);
-            // remove parent
-            camerasGameObject.transform.SetParent(null);
-            // now attach the main camera to this gameObject
-            mainCameraGameObject.transform.SetParent(camerasGameObject.transform);
-            // now attach the main camera to this gameObject
-            freeLookCameraGameObject.transform.SetParent(camerasGameObject.transform);
-            // now attach the main camera to this gameObject
-            birdsEyeCameraGameObject.transform.SetParent(camerasGameObject.transform);
-            // now attach the hyperzoom to this gameObject
-            hyperzoomGameObject.transform.SetParent(camerasGameObject.transform);
+            // get access to the main camera
+            GameObject mainCameraGameObject = camerasGameObject.transform.Find("Main").gameObject;
+            // get access to the hyperzoom child
+            GameObject hyperzoomGameObject = camerasGameObject.transform.Find("Hyperzoom").gameObject;
 
             // controller input is optional
             if (!addHyperzoomJoystickInput)
@@ -482,7 +460,7 @@ namespace Fungus
             // now set the background canvas to fit
             CanvasScaler backgroundCanvasScaler = backgroundGameObject.GetComponent<CanvasScaler>();
             backgroundCanvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            backgroundCanvasScaler.referenceResolution = new Vector2(2400, 2400);
+            backgroundCanvasScaler.referenceResolution = new Vector2(4000, 4000);
 
         }
 
