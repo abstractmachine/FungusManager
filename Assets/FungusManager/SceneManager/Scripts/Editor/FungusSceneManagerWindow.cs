@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEditor;
 using System.IO;
@@ -15,11 +16,11 @@ namespace Fungus
         #region Members
 
         private bool addHyperzoomControls = true;
-        private bool addHyperzoomJoystickInput = true;
-        private bool addHyperzoomKeyboardInput = true;
         private bool addHyperzoomPointerInput = true;
+        private bool addHyperzoomKeyboardInput = true;
+        private bool addHyperzoomJoystickInput = false;
 
-        private bool createCharactersPrefab = true;
+        //private bool createCharactersPrefab = true;
 
         private string lastSaveFolder = "Assets/";
 
@@ -110,13 +111,15 @@ namespace Fungus
                     GUILayout.Space(20);
                     addHyperzoomPointerInput = GUILayout.Toggle(addHyperzoomPointerInput, "Touch & Mouse Pointer");
                     GUILayout.EndHorizontal();
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Space(20);
-                    addHyperzoomJoystickInput = GUILayout.Toggle(addHyperzoomJoystickInput, "Joystick Controller");
-                    GUILayout.EndHorizontal();
+
                     GUILayout.BeginHorizontal();
                     GUILayout.Space(20);
                     addHyperzoomKeyboardInput = GUILayout.Toggle(addHyperzoomKeyboardInput, "Keyboard");
+                    GUILayout.EndHorizontal();
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Space(20);
+                    addHyperzoomJoystickInput = GUILayout.Toggle(addHyperzoomJoystickInput, "Joystick Controller");
                     GUILayout.EndHorizontal();
                 } 
             }
@@ -385,62 +388,16 @@ namespace Fungus
 
             // add prefabs to scene
 
-            //// hyperzoom is optional
-            //if (addHyperzoomControls)
-            //{
-            //    GameObject hyperzoomPrefab = Resources.Load<GameObject>("Hyperzoom/Prefabs/Hyperzoom");
-            //    GameObject hyperzoomGameObject = PrefabUtility.InstantiatePrefab(hyperzoomPrefab, newScene) as GameObject;
-
-            //    // controller input is optional
-            //    if (!addHyperzoomJoystickInput)
-            //    {
-            //        HyperzoomJoystick hyperzoomJoystick = hyperzoomGameObject.GetComponent<HyperzoomJoystick>();
-            //        DestroyImmediate(hyperzoomJoystick);
-            //    }
-            //    // controller input is optional
-            //    if (!addHyperzoomKeyboardInput)
-            //    {
-            //        HyperzoomKeyboard hyperzoomKeyboard = hyperzoomGameObject.GetComponent<HyperzoomKeyboard>();
-            //        DestroyImmediate(hyperzoomKeyboard);
-            //    }
-            //    // controller input is optional
-            //    if (!addHyperzoomPointerInput)
-            //    {
-            //        HyperzoomPointer hyperzoomPointer = hyperzoomGameObject.GetComponent<HyperzoomPointer>();
-            //        DestroyImmediate(hyperzoomPointer);
-            //    }
-            //}
-            //// if (addHyperzoomControls)
-
-            if (createCharactersPrefab)
+            // hyperzoom is optional
+            if (addHyperzoomControls)
             {
-                GameObject charactersPrefab = Resources.Load<GameObject>("CharacterManager/Prefabs/Characters");
-                // this is the path to the prefab
-                //string charactersPrefabPath = "Assets/FungusManager/CharacterManager/Prefabs/FungusCharacters.prefab";
-                // find out if there already is a prefab in our project
-                string projectCharactersPrefabPath = GetPrefabPath("FungusCharacterManager");
-                // if we found something
-                if (projectCharactersPrefabPath != "")
-                {
-                    // use this prefab path instead of the one in the project path
-                    charactersPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(projectCharactersPrefabPath, typeof(GameObject));
-                }
-
-                GameObject charactersGameObject = PrefabUtility.InstantiatePrefab(charactersPrefab, newScene) as GameObject;
-
-                // if this is a new prefab
-                if (projectCharactersPrefabPath == "")
-                {
-                    // make sure this prefab goes into the same folder at the Start scene's folder
-                    string newPrefabFolder = path + "/FungusCharacterManager.prefab";
-                    // save it to new position
-                    GameObject newPrefab = PrefabUtility.CreatePrefab(newPrefabFolder, charactersGameObject) as GameObject;
-                    // set this as our prefab
-                    PrefabUtility.ConnectGameObjectToPrefab(charactersGameObject, newPrefab);
-                }
-
+                CreateHyperzoom(newScene);
             }
-            // if (createCharactersPrefab)
+
+            //if (createCharactersPrefab)
+            //{
+            //    CreateCharacters(newScene);
+            //}
 
             // try to save
             if (!EditorSceneManager.SaveScene(newScene, path + "/" + sceneName + ".unity", false))
@@ -462,7 +419,106 @@ namespace Fungus
             CheckScenes();
         }
 
+
+        void CreateHyperzoom(Scene newScene)
+        {
+            GameObject mainCameraPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/MainCamera.prefab", typeof(GameObject));
+            GameObject mainCameraGameObject = PrefabUtility.InstantiatePrefab(mainCameraPrefab, newScene) as GameObject;
+            mainCameraGameObject.name = "Main";
+
+            GameObject freeLookCameraPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/FreeLookCamera.prefab", typeof(GameObject));
+            GameObject freeLookCameraGameObject = PrefabUtility.InstantiatePrefab(freeLookCameraPrefab, newScene) as GameObject;
+            freeLookCameraGameObject.name = "Free-Look";
+
+            GameObject birdsEyeCameraPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/BirdsEyeViewCamera.prefab", typeof(GameObject));
+            GameObject birdsEyeCameraGameObject = PrefabUtility.InstantiatePrefab(birdsEyeCameraPrefab, newScene) as GameObject;
+            birdsEyeCameraGameObject.name = "Bird's-Eye View";
+
+            GameObject hyperzoomPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/Hyperzoom.prefab", typeof(GameObject));
+            GameObject hyperzoomGameObject = PrefabUtility.InstantiatePrefab(hyperzoomPrefab, newScene) as GameObject;
+
+            // create a new empty object
+            GameObject camerasGameObject = new GameObject("Cameras");
+            // move instantiated gameObject to root of scene
+            camerasGameObject.transform.SetParent(hyperzoomGameObject.transform);
+            // remove parent
+            camerasGameObject.transform.SetParent(null);
+            // now attach the main camera to this gameObject
+            mainCameraGameObject.transform.SetParent(camerasGameObject.transform);
+            // now attach the main camera to this gameObject
+            freeLookCameraGameObject.transform.SetParent(camerasGameObject.transform);
+            // now attach the main camera to this gameObject
+            birdsEyeCameraGameObject.transform.SetParent(camerasGameObject.transform);
+            // now attach the hyperzoom to this gameObject
+            hyperzoomGameObject.transform.SetParent(camerasGameObject.transform);
+
+            // controller input is optional
+            if (!addHyperzoomJoystickInput)
+            {
+                Component hyperzoomJoystick = hyperzoomGameObject.GetComponent("HyperzoomJoystick");
+                DestroyImmediate(hyperzoomJoystick);
+            }
+            // controller input is optional
+            if (!addHyperzoomKeyboardInput)
+            {
+                Component hyperzoomKeyboard = hyperzoomGameObject.GetComponent("HyperzoomKeyboard");
+                DestroyImmediate(hyperzoomKeyboard);
+            }
+            // controller input is optional
+            if (!addHyperzoomPointerInput)
+            {
+                Component hyperzoomPointer = hyperzoomGameObject.GetComponent("HyperzoomPointer");
+                DestroyImmediate(hyperzoomPointer);
+            }
+
+            // set the background object
+            GameObject backgroundPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/Background.prefab", typeof(GameObject));
+            GameObject backgroundGameObject = PrefabUtility.InstantiatePrefab(backgroundPrefab, newScene) as GameObject;
+            backgroundGameObject.name = "Background";
+            // set the canvas on this background object to the main camera (this is due to a unity bug: cf. http://bit.ly/2hHfOaF)
+            Canvas backgroundCanvas = backgroundGameObject.GetComponent<Canvas>();
+            backgroundCanvas.renderMode = RenderMode.ScreenSpaceCamera;
+            backgroundCanvas.worldCamera = mainCameraGameObject.GetComponent<Camera>();
+            // now set the background canvas to fit
+            CanvasScaler backgroundCanvasScaler = backgroundGameObject.GetComponent<CanvasScaler>();
+            backgroundCanvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            backgroundCanvasScaler.referenceResolution = new Vector2(2400, 2400);
+
+        }
+
+
+        void CreateCharacters(Scene newScene)
+        {
+            //GameObject charactersPrefab = Resources.Load<GameObject>("CharacterManager/Prefabs/Characters");
+            //// this is the path to the prefab
+            ////string charactersPrefabPath = "Assets/FungusManager/CharacterManager/Prefabs/FungusCharacters.prefab";
+            //// find out if there already is a prefab in our project
+            //string projectCharactersPrefabPath = GetPrefabPath("FungusCharacterManager");
+            //// if we found something
+            //if (projectCharactersPrefabPath != "")
+            //{
+            //    // use this prefab path instead of the one in the project path
+            //    charactersPrefab = (GameObject)AssetDatabase.LoadAssetAtPath(projectCharactersPrefabPath, typeof(GameObject));
+            //}
+
+            //GameObject charactersGameObject = PrefabUtility.InstantiatePrefab(charactersPrefab, newScene) as GameObject;
+
+            //// if this is a new prefab
+            //if (projectCharactersPrefabPath == "")
+            //{
+            //    // make sure this prefab goes into the same folder at the Start scene's folder
+            //    string newPrefabFolder = path + "/FungusCharacterManager.prefab";
+            //    // save it to new position
+            //    GameObject newPrefab = PrefabUtility.CreatePrefab(newPrefabFolder, charactersGameObject) as GameObject;
+            //    // set this as our prefab
+            //    PrefabUtility.ConnectGameObjectToPrefab(charactersGameObject, newPrefab);
+            //}
+        }
+
         #endregion
+
+
+
 
 
         #region Scene List
