@@ -56,6 +56,7 @@ namespace Fungus
 		private string requestedScene = "";
 
 		private Color backgroundColor = Color.gray;
+        private Coroutine backgroundColorCoroutine = null;
 
         private bool hyperzoomIsPresent = false;
 
@@ -98,7 +99,9 @@ namespace Fungus
 			if (resetVariablesAtStart)
 			{
 				ResetVariables();
-			}
+            }
+            // get the camera in this manager
+            managerCamera = GetComponentInChildren<Camera>();
         }
 
 
@@ -108,11 +111,10 @@ namespace Fungus
             // verify that hyperzoom is present in the scene
             hyperzoomIsPresent = FindObjectOfType(hyperzoomType) != null;
 
+            backgroundColor = managerCamera.backgroundColor;
+
             // check how many scenes are present
             CloseOtherScenes();
-            // get the camera in this manager
-            managerCamera = GetComponentInChildren<Camera>();
-            backgroundColor = managerCamera.backgroundColor;
         }
 
 
@@ -525,7 +527,11 @@ namespace Fungus
         /// <param name="mode">Mode.</param>
 
         void SceneManagerLoadedScene(Scene scene, LoadSceneMode mode)
-		{
+        {
+            //Type hyperzoomType = Type.GetType("Hyperzoom");
+            //// verify that hyperzoom is present in the scene
+            //hyperzoomIsPresent = FindObjectOfType(hyperzoomType) != null;
+
             // if we need to load variables
             if (persistVariablesAcrossScenes)
             {
@@ -605,7 +611,10 @@ namespace Fungus
         {
             if (fadeBackgroundColor)
             {
-                StartCoroutine("BackgroundColorRoutine", newColor);
+                // if there is a co-routine playing, stop it
+                if (backgroundColorCoroutine != null) StopCoroutine(backgroundColorCoroutine);
+                // start the ChangeBackgroundColor routine and remember it for future destruction if necessary
+                backgroundColorCoroutine = StartCoroutine("BackgroundColorRoutine", newColor);
             }
         }
 
@@ -615,7 +624,14 @@ namespace Fungus
             for (float t = 0.0f; t < 1.0f; t += 0.05f)
             {
                 backgroundColor = Color.Lerp(backgroundColor, newColor, t);
-                managerCamera.backgroundColor = backgroundColor;
+                if (managerCamera != null)
+                {
+                    managerCamera.backgroundColor = backgroundColor; 
+                }
+                else
+                {
+                    Debug.LogWarning("managerCamera == null");
+                }
                 yield return new WaitForEndOfFrame();
             }
 
