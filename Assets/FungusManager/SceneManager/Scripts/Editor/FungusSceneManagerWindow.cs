@@ -527,21 +527,36 @@ namespace Fungus
         {
             GUILayout.BeginHorizontal();
 
+            bool sceneIsLoaded = loadedScenes.Contains(sceneName);
+
             if (GUILayout.Button("REMOVE", GUILayout.ExpandWidth(false)))
             {
-                RemoveSceneFromBuildSettings(sceneName); 
+                // make sure the user is sure
+                if (EditorUtility.DisplayDialog("Remove '" + sceneName + "'", "Are you sure you want to remove the scene '" + sceneName + "' from the current list of scenes? You can add it later via the 'Add Scene' button.", "Yes", "Cancel"))
+                {
+                    RemoveSceneFromBuildSettings(sceneName);
+                }
             }
 
-            if (GUILayout.Button("LOAD", GUILayout.ExpandWidth(false)))
+            if (!sceneIsLoaded) 
             {
-                CloseOpenScenes();
-                string path = GetSceneAssetPath(sceneName + ".unity");
-                LoadManagedScene(path, OpenSceneMode.Additive, false);
+                if (GUILayout.Button("LOAD", GUILayout.ExpandWidth(false)))
+                {
+                    CloseOpenScenes();
+                    UpdateLoadedSceneList();
+
+                    string path = GetSceneAssetPath(sceneName + ".unity");
+                    LoadManagedScene(path, OpenSceneMode.Additive, false);
+                } 
             }
 
-            if (GUILayout.Button("CLOSE", GUILayout.ExpandWidth(false)))
+            if (sceneIsLoaded) 
             {
-                CloseOpenScene(sceneName);
+                if (GUILayout.Button("CLOSE", GUILayout.ExpandWidth(false)))
+                {
+                    CloseOpenScene(sceneName);
+                    UpdateLoadedSceneList();
+                } 
             }
 
             GUILayout.Space(2);

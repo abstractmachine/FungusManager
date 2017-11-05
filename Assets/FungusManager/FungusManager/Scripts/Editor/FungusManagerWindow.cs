@@ -24,6 +24,7 @@ namespace Fungus
         protected bool startSceneIsActive = false;
 
         protected List<string> scenesInProject = new List<string>();
+        protected List<string> loadedScenes = new List<string>();
 
         #endregion
 
@@ -102,6 +103,7 @@ namespace Fungus
         {
             // get the latest list of available scenes
             UpdateProjectSceneList();
+            UpdateLoadedSceneList();
 
             // get current state of Scene Manager
             projectContainsSceneManager = DoesSceneExist("SceneManager");
@@ -219,6 +221,21 @@ namespace Fungus
         {
             // get the latest list of available scenes
             scenesInProject = CurrentSceneAssets();
+        }
+
+
+        protected void UpdateLoadedSceneList()
+        {
+            // clear the current list
+            loadedScenes.Clear();
+            // close the other scene
+            for (int i = EditorSceneManager.sceneCount - 1; i >= 0; i--)
+            {
+                // get this scene
+                Scene scene = EditorSceneManager.GetSceneAt(i);
+                // add to list
+                loadedScenes.Add(scene.name);
+            }
         }
 
 
@@ -454,7 +471,7 @@ namespace Fungus
         protected void CloseOpenScene(string sceneName)
         {
             // close the other scene
-            for (int i = EditorSceneManager.sceneCount-1; i >= 0; i--)
+            for (int i = EditorSceneManager.sceneCount - 1; i >= 0; i--)
             {
                 Scene scene = EditorSceneManager.GetSceneAt(i);
                 // leave manager scene

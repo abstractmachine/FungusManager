@@ -58,8 +58,6 @@ namespace Fungus
 		private Color backgroundColor = Color.gray;
         private Coroutine backgroundColorCoroutine = null;
 
-        private bool hyperzoomIsPresent = false;
-
         #endregion
 
 
@@ -107,14 +105,20 @@ namespace Fungus
 
         void Start()
         {
-            Type hyperzoomType = Type.GetType("Hyperzoom");
-            // verify that hyperzoom is present in the scene
-            hyperzoomIsPresent = FindObjectOfType(hyperzoomType) != null;
-
             backgroundColor = managerCamera.backgroundColor;
 
             // check how many scenes are present
             CloseOtherScenes();
+        }
+
+
+        private bool HyperzoomIsPresent()
+        {
+            Type hyperzoomType = Type.GetType("Hyperzoom");
+            // verify that hyperzoom is present in the scene
+            bool hyperzoomIsPresent = FindObjectOfType(hyperzoomType) != null;
+            Debug.Log(hyperzoomIsPresent);
+            return hyperzoomIsPresent;
         }
 
 
@@ -151,7 +155,7 @@ namespace Fungus
                 CloseOtherScenes();
                 LoadScene(sceneName);
             }
-            else if (!hyperzoomIsPresent)
+            else if (!HyperzoomIsPresent())
             {
                 SaveVariables();
                 CloseOtherScenes();
@@ -528,10 +532,6 @@ namespace Fungus
 
         void SceneManagerLoadedScene(Scene scene, LoadSceneMode mode)
         {
-            //Type hyperzoomType = Type.GetType("Hyperzoom");
-            //// verify that hyperzoom is present in the scene
-            //hyperzoomIsPresent = FindObjectOfType(hyperzoomType) != null;
-
             // if we need to load variables
             if (persistVariablesAcrossScenes)
             {
