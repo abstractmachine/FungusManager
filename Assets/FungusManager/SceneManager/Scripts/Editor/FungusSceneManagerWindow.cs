@@ -334,6 +334,9 @@ namespace Fungus
             RequestManagedScene requestManagedScene = flowchartGameObject.AddComponent<RequestManagedScene>();
             requestManagedScene.sceneName = "Start";
 
+            // get the flowchart script
+            defaultBlock.CommandList.Add(requestManagedScene);
+
             // try to save
             if (!EditorSceneManager.SaveScene(sceneManagerScene, path + "/SceneManager.unity", false))
             {

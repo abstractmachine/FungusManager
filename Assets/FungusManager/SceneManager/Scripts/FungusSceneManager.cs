@@ -187,7 +187,21 @@ namespace Fungus
             // make sure it's valid
             if (sceneName == null)
             {
-                Debug.Log("Scene name is null");
+                Debug.LogError("Scene name is null");
+                return;
+            }
+
+            // make sure it's not empty
+            if (sceneName == "")
+            {
+                Debug.LogError("Empty scene name");
+                return;
+            }
+
+            // check to see if this scene is in the list
+            if (!scenes.Contains(sceneName))
+            {
+                Debug.LogError("There is no scene named '" + sceneName + "' in the list of Current Scenes.\nUse the Scene Manager to create a scene named '" + sceneName + "'.");
                 return;
             }
 
