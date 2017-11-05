@@ -117,7 +117,6 @@ namespace Fungus
             Type hyperzoomType = Type.GetType("Hyperzoom");
             // verify that hyperzoom is present in the scene
             bool hyperzoomIsPresent = FindObjectOfType(hyperzoomType) != null;
-            Debug.Log(hyperzoomIsPresent);
             return hyperzoomIsPresent;
         }
 

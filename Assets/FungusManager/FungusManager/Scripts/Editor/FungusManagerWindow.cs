@@ -135,7 +135,8 @@ namespace Fungus
             // start under the assumption that it doesn't exist
             projectContainsHyperzoom = false;
             // if there isn't even the folder
-            if (!File.Exists("Assets/Hyperzoom"))
+
+            if (!AssetDatabase.IsValidFolder("Assets/Hyperzoom"))
             {
                 return;
             }
