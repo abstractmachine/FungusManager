@@ -134,6 +134,11 @@ namespace Fungus
         {
             // start under the assumption that it doesn't exist
             projectContainsHyperzoom = false;
+            // if there isn't even the folder
+            if (!File.Exists("Assets/Hyperzoom"))
+            {
+                return;
+            }
             // look inside those valid (non-Fungus) folders for Scenes
             string[] validScenes = {"Assets/Hyperzoom"};
             string[] foundScenes = AssetDatabase.FindAssets("t:Prefab", validScenes);
