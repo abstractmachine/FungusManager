@@ -34,6 +34,8 @@ namespace Fungus
 
         private Vector2 displayScenesScroll = Vector2.zero;
 
+        private Texture2D sceneIcon;
+
         #endregion
 
 
@@ -392,7 +394,7 @@ namespace Fungus
             // add prefabs to scene
 
             // hyperzoom is optional
-            if (addHyperzoomControls)
+            if (projectContainsHyperzoom && addHyperzoomControls)
             {
                 CreateHyperzoom(newScene);
             }
@@ -535,7 +537,7 @@ namespace Fungus
             if (GUILayout.Button("REMOVE", GUILayout.ExpandWidth(false)))
             {
                 // make sure the user is sure
-                if (EditorUtility.DisplayDialog("Remove '" + sceneName + "'", "Are you sure you want to remove the scene '" + sceneName + "' from the current list of scenes? You can add it later via the 'Add Scene' button.", "Yes", "Cancel"))
+                if (EditorUtility.DisplayDialog("Remove '" + sceneName + "'", "Are you sure you want to remove the scene '" + sceneName + "' from the current list of scenes? You can add it later via the 'Add Scene' button.", "Remove", "Cancel"))
                 {
                     RemoveSceneFromBuildSettings(sceneName);
                 }
@@ -564,7 +566,20 @@ namespace Fungus
 
             GUILayout.Space(2);
 
-            GUILayout.Label(sceneName);
+            ////if (sceneIcon == null)
+            //{
+            sceneIcon = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets/FungusManager/FungusManager/Icons/Scene_Icon.png", typeof(Texture2D));
+            //}  
+
+            GUIStyle iconStyle = new GUIStyle(GUI.skin.label);
+            iconStyle.fixedWidth = 22;
+            iconStyle.fixedHeight = 22;
+            GUILayout.Label(sceneIcon, iconStyle);
+
+            GUIStyle textStyle = new GUIStyle(GUI.skin.label);
+            textStyle.fontStyle = FontStyle.Normal;
+            textStyle.contentOffset = new Vector2(0, 3);
+            GUILayout.Label(sceneName, textStyle);
 
             GUILayout.EndHorizontal();
 
