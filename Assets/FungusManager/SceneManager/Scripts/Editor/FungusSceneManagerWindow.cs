@@ -547,6 +547,7 @@ namespace Fungus
             {
                 if (GUILayout.Button("LOAD", GUILayout.ExpandWidth(false)))
                 {
+                    EditorSceneManager.SaveOpenScenes();
                     CloseOpenScenes();
                     UpdateLoadedSceneList();
 
@@ -559,6 +560,7 @@ namespace Fungus
             {
                 if (GUILayout.Button("CLOSE", GUILayout.ExpandWidth(false)))
                 {
+                    EditorSceneManager.SaveOpenScenes();
                     CloseOpenScene(sceneName);
                     UpdateLoadedSceneList();
                 } 

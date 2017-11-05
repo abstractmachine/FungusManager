@@ -474,6 +474,26 @@ namespace Fungus
         }
 
 
+        protected void SaveOpenScene()
+        {
+            Scene managerScene = GetSceneManagerScene();
+
+            // close the other scene
+            for (int i = EditorSceneManager.sceneCount - 1; i >= 0; i--)
+            {
+                Scene scene = EditorSceneManager.GetSceneAt(i);
+                // leave manager scene
+                if (managerScene == scene) continue;
+                // now check to see if this scene is dirty
+                if (scene.isDirty) 
+                {
+                    // save the scene
+                    EditorSceneManager.SaveScene(scene);
+                }
+            }
+        }
+
+
         protected void CloseOpenScene(string sceneName)
         {
             // close the other scene
