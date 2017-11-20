@@ -98,8 +98,16 @@ namespace Fungus
 			{
 				ResetVariables();
             }
-            // get the camera in this manager
-            managerCamera = GetComponentInChildren<Camera>();
+            foreach(GameObject go in this.gameObject.scene.GetRootGameObjects())
+            {
+                Camera mainCamera = go.GetComponent<Camera>();
+                if (mainCamera != null)
+                {
+                    // get the camera in this manager
+                    managerCamera = mainCamera;
+                    break;
+                }
+            }
         }
 
 
