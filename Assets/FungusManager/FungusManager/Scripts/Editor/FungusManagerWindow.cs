@@ -259,6 +259,19 @@ namespace Fungus
         }
 
 
+        protected List<string> ManagedScenePaths()
+        {
+            List<string> scenePaths = new List<string>();
+            // first load in all the current scenes in the build settings
+            foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
+            {
+                scenePaths.Add(buildScene.path);
+            }
+
+            return scenePaths;
+        }
+
+
         protected bool IsPathValid(string path)
         {
             // make sure there was a valid path
@@ -291,7 +304,8 @@ namespace Fungus
                 // get the root path
                 string assetAvoidPath = "Assets/" + avoidFolder;
                 // check with new name
-                if (assetPath.StartsWith(assetAvoidPath)) {
+                if (assetPath.StartsWith(assetAvoidPath))
+                {
                     Debug.LogWarning("That is a restricted folder. Choose another Project folder than '" + assetPath + "'. Try placing your scene in 'Assets/Scenes'.");
                     return false;
                 }
@@ -308,7 +322,6 @@ namespace Fungus
         void UpdateProjectSceneList()
         {
             // get the latest list of available scenes
-            //scenesInProject = CurrentSceneAssets();
             scenesInProject = CurrentScenePaths();
         }
 
@@ -330,11 +343,8 @@ namespace Fungus
 
         protected string GetSceneAssetPath(string sceneName)
         {
-            // this is the list of valid folders we can search in
-            //List<string> currentSceneAssets = CurrentSceneAssets();
-
             //foreach (string path in currentSceneAssets)
-            foreach(string path in scenesInProject)
+            foreach (string path in scenesInProject)
             {
                 if (path.EndsWith(sceneName))
                 {
@@ -346,42 +356,42 @@ namespace Fungus
         }
 
 
-        //protected string GetPrefabPath(string prefabName)
-        //{
-        //    // if necessary
-        //    if (!prefabName.EndsWith(".prefab"))
-        //    {
-        //        // add .prefab at the end of this name
-        //        prefabName += ".prefab";
-        //    }
-        //    // this is the list of valid folders we can search in
-        //    List<string> searchableFolders = new List<string>();
-        //    // get the list of all the root folders in our project
-        //    string[] rootFolders = Directory.GetDirectories(Application.dataPath + "/");
-        //    // go through each folder
-        //    foreach (string subfolder in rootFolders)
-        //    {
-        //        // ignore these subfolders
-        //        if (subfolder.EndsWith("Fungus") || subfolder.EndsWith("FungusManager") || subfolder.EndsWith("Hyperzoom") || subfolder.EndsWith("Cinemachine")) continue;
-        //        // ok, this is valid
-        //        searchableFolders.Add("Assets/" + new DirectoryInfo(subfolder).Name);
-        //    }
-        //    // look inside those valid (non-Fungus) folders for Scenes
-        //    string[] foundScenes = AssetDatabase.FindAssets("t:Prefab", searchableFolders.ToArray());
-        //    // go through each scene
-        //    foreach (string scene in foundScenes)
-        //    {
-        //        string path = AssetDatabase.GUIDToAssetPath(scene);
-        //        // is this the one we're looking for?
-        //        if (path.EndsWith(prefabName))
-        //        {
-        //            // send back path without the long complicated root path
-        //            return CleanUpPath(path);
-        //        }
-        //    }
+        protected string GetPrefabPath(string prefabName)
+        {
+            // if necessary
+            if (!prefabName.EndsWith(".prefab"))
+            {
+                // add .prefab at the end of this name
+                prefabName += ".prefab";
+            }
+            // this is the list of valid folders we can search in
+            List<string> searchableFolders = new List<string>();
+            // get the list of all the root folders in our project
+            string[] rootFolders = Directory.GetDirectories(Application.dataPath + "/");
+            // go through each folder
+            foreach (string subfolder in rootFolders)
+            {
+                // ignore these subfolders
+                if (subfolder.EndsWith("Fungus") || subfolder.EndsWith("FungusManager") || subfolder.EndsWith("Hyperzoom") || subfolder.EndsWith("Cinemachine")) continue;
+                // ok, this is valid
+                searchableFolders.Add("Assets/" + new DirectoryInfo(subfolder).Name);
+            }
+            // look inside those valid (non-Fungus) folders for Scenes
+            string[] foundScenes = AssetDatabase.FindAssets("t:Prefab", searchableFolders.ToArray());
+            // go through each scene
+            foreach (string scene in foundScenes)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(scene);
+                // is this the one we're looking for?
+                if (path.EndsWith(prefabName))
+                {
+                    // send back path without the long complicated root path
+                    return CleanUpPath(path);
+                }
+            }
 
-        //    return "";
-        //}
+            return "";
+        }
 
 
         //protected int SceneManagerIndex()
@@ -447,24 +457,24 @@ namespace Fungus
         }
 
 
-        //protected FungusSceneManager GetFungusSceneManagerScript()
-        //{
-        //    Scene scene = GetSceneManagerScene();
+        protected FungusSceneManager GetFungusSceneManagerScript()
+        {
+            Scene scene = GetSceneManagerScene();
 
-        //    // make sure we actually got a scene
-        //    if (!scene.IsValid()) return null;
+            // make sure we actually got a scene
+            if (!scene.IsValid()) return null;
 
-        //    foreach (GameObject go in scene.GetRootGameObjects())
-        //    {
-        //        FungusSceneManager fungusSceneManager = go.GetComponent<FungusSceneManager>();
-        //        if (fungusSceneManager != null)
-        //        {
-        //            return fungusSceneManager;
-        //        }
-        //    }
+            foreach (GameObject go in scene.GetRootGameObjects())
+            {
+                FungusSceneManager fungusSceneManager = go.GetComponent<FungusSceneManager>();
+                if (fungusSceneManager != null)
+                {
+                    return fungusSceneManager;
+                }
+            }
 
-        //    return null;
-        //}
+            return null;
+        }
 
         #endregion
 
@@ -475,74 +485,74 @@ namespace Fungus
         {
             Scene scene = EditorSceneManager.OpenScene(scenePath, sceneMode);
 
-            SetSceneToActive(scene);
-
             Scene firstScene = EditorSceneManager.GetSceneAt(0);
             if (moveToTop && firstScene != scene)
             {
                 MoveSceneToTop(scene);
             }
 
+            SetSceneToActive(scene);
+
             CheckScenes();
         }
 
 
-        //protected void CloseOpenScenes()
-        //{
-        //    Scene managerScene = GetSceneManagerScene();
+        protected void CloseOpenScenes()
+        {
+            Scene managerScene = GetSceneManagerScene();
 
-        //    // close the other scene
-        //    for (int i = EditorSceneManager.sceneCount - 1; i >= 0; i--)
-        //    {
-        //        Scene scene = EditorSceneManager.GetSceneAt(i);
-        //        // leave manager scene
-        //        if (managerScene == scene) continue;
-        //        // close anything else
-        //        if (!EditorSceneManager.CloseScene(scene, true))
-        //        {
-        //            Debug.LogError("Couldn't close scene " + scene.name);
-        //            return;
-        //        }
-        //    }
-        //}
-
-
-        //protected void SaveOpenScene()
-        //{
-        //    Scene managerScene = GetSceneManagerScene();
-
-        //    // close the other scene
-        //    for (int i = EditorSceneManager.sceneCount - 1; i >= 0; i--)
-        //    {
-        //        Scene scene = EditorSceneManager.GetSceneAt(i);
-        //        // leave manager scene
-        //        if (managerScene == scene) continue;
-        //        // now check to see if this scene is dirty
-        //        if (scene.isDirty)
-        //        {
-        //            // save the scene
-        //            EditorSceneManager.SaveScene(scene);
-        //        }
-        //    }
-        //}
+            // close the other scene
+            for (int i = EditorSceneManager.sceneCount - 1; i >= 0; i--)
+            {
+                Scene scene = EditorSceneManager.GetSceneAt(i);
+                // leave manager scene
+                if (managerScene == scene) continue;
+                // close anything else
+                if (!EditorSceneManager.CloseScene(scene, true))
+                {
+                    Debug.LogError("Couldn't close scene " + scene.name);
+                    return;
+                }
+            }
+        }
 
 
-        //protected void CloseOpenScene(string sceneName)
-        //{
-        //    // close the other scene
-        //    for (int i = EditorSceneManager.sceneCount - 1; i >= 0; i--)
-        //    {
-        //        Scene scene = EditorSceneManager.GetSceneAt(i);
-        //        // leave manager scene
-        //        if (sceneName != scene.name) continue;
-        //        // close anything else
-        //        if (!EditorSceneManager.CloseScene(scene, true))
-        //        {
-        //            Debug.LogError("Couldn't close scene " + scene.name);
-        //            return;
-        //        }
-        //    }
-        //}
+        protected void CloseOpenScene(string sceneName)
+        {
+            // close the other scene
+            for (int i = EditorSceneManager.sceneCount - 1; i >= 0; i--)
+            {
+                Scene scene = EditorSceneManager.GetSceneAt(i);
+                // leave manager scene
+                if (sceneName != scene.name) continue;
+                // close anything else
+                if (!EditorSceneManager.CloseScene(scene, true))
+                {
+                    Debug.LogError("Couldn't close scene " + scene.name);
+                    return;
+                }
+            }
+        }
+
+
+        protected void SaveOpenScene()
+        {
+            Scene managerScene = GetSceneManagerScene();
+
+            // close the other scene
+            for (int i = EditorSceneManager.sceneCount - 1; i >= 0; i--)
+            {
+                Scene scene = EditorSceneManager.GetSceneAt(i);
+                // leave manager scene
+                if (managerScene == scene) continue;
+                // now check to see if this scene is dirty
+                if (scene.isDirty)
+                {
+                    // save the scene
+                    EditorSceneManager.SaveScene(scene);
+                }
+            }
+        }
 
 
         protected void SetSceneToActive(Scene scene)
@@ -560,130 +570,138 @@ namespace Fungus
         #endregion
 
 
-        //#region BuildSettings
+        #region BuildSettings
 
-        //protected void ClearBuildSettings()
-        //{
-        //    // this is the final list of scenes
-        //    List<EditorBuildSettingsScene> finalSceneList = new List<EditorBuildSettingsScene>();
-        //    // Set the Build Settings window Scene list
-        //    EditorBuildSettings.scenes = finalSceneList.ToArray();
-        //    // save in local SceneManager variable
-        //    SaveBuildSettingsInSceneManager();
-        //}
-
-        //protected void SaveSceneToBuildSettings(Scene newScene, bool isSceneManager = false)
-        //{
-        //    AddScenePathToBuildSettings(newScene.path, isSceneManager);
-        //}
+        protected void ClearBuildSettings()
+        {
+            // this is the final list of scenes
+            List<EditorBuildSettingsScene> finalSceneList = new List<EditorBuildSettingsScene>();
+            // Set the Build Settings window Scene list
+            EditorBuildSettings.scenes = finalSceneList.ToArray();
+            // save in local SceneManager variable
+            SaveBuildSettingsInSceneManager();
+        }
 
 
-        //protected void AddScenePathToBuildSettings(string addScenePath, bool isSceneManager = false)
-        //{
-        //    // this is the final list of scenes
-        //    List<EditorBuildSettingsScene> finalSceneList = new List<EditorBuildSettingsScene>();
-
-        //    // we are going to check to see if the SceneManager is also in the build settings
-        //    Scene sceneManagerScene = GetSceneManagerScene();
-
-        //    // always add the SceneManager first
-        //    if (!isSceneManager)
-        //    {
-        //        finalSceneList.Add(new EditorBuildSettingsScene(sceneManagerScene.path, true));
-        //    }
-
-        //    bool newSceneAlreadyInBuildSettings = false;
-
-        //    foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
-        //    {
-        //        bool thisSceneAlreadyInList = false;
-        //        foreach (EditorBuildSettingsScene checkScene in finalSceneList)
-        //        {
-        //            if (buildScene.path == checkScene.path) thisSceneAlreadyInList = true;
-        //            if (buildScene.path == addScenePath) newSceneAlreadyInBuildSettings = true;
-        //            if (checkScene.path == addScenePath) newSceneAlreadyInBuildSettings = true;
-        //        }
-        //        // add to list
-        //        if (!thisSceneAlreadyInList)
-        //        {
-        //            finalSceneList.Add(buildScene);
-        //        }
-        //    }
-
-        //    // if we are not already added to the list
-        //    if (!newSceneAlreadyInBuildSettings)
-        //    {   // add to the main build settings list
-        //        finalSceneList.Add(new EditorBuildSettingsScene(addScenePath, true));
-        //    }
-
-        //    // Set the Build Settings window Scene list
-        //    EditorBuildSettings.scenes = finalSceneList.ToArray();
-
-        //    // save in local SceneManager variable
-        //    SaveBuildSettingsInSceneManager();
-        //}
+        protected void SaveSceneToBuildSettings(Scene newScene, bool isSceneManager = false)
+        {
+            AddScenePathToBuildSettings(newScene.path, isSceneManager);
+        }
 
 
-        //protected void RemoveSceneFromBuildSettings(string sceneName)
-        //{
-        //    // this is the final list of scenes
-        //    List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
+        protected void AddScenePathToBuildSettings(string addScenePath, bool isSceneManager = false)
+        {
+            // this is the final list of scenes
+            List<EditorBuildSettingsScene> finalSceneList = new List<EditorBuildSettingsScene>();
 
-        //    string unitySceneName = sceneName + ".unity";
+            // we are going to check to see if the SceneManager is also in the build settings
+            Scene sceneManagerScene = GetSceneManagerScene();
 
-        //    // go through each item
-        //    foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
-        //    {
-        //        // ignore this one
-        //        if (buildScene.path.EndsWith("/" + unitySceneName)) continue;
-        //        // add to list
-        //        editorBuildSettingsScenes.Add(buildScene);
-        //    }
+            if (!sceneManagerScene.IsValid())
+            {
+                Debug.LogError("SceneManager is invalid");
+                return;
+            }
 
-        //    // Set the Build Settings window Scene list
-        //    EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
+            // always add the SceneManager first
+            if (!isSceneManager)
+            {
+                EditorBuildSettingsScene buildSettingsScene = new EditorBuildSettingsScene(sceneManagerScene.path, true);
+                finalSceneList.Add(buildSettingsScene);
+            }
 
-        //    // save in local SceneManager variable
-        //    SaveBuildSettingsInSceneManager();
+            bool newSceneAlreadyInBuildSettings = false;
 
-        //}
+            foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
+            {
+                bool thisSceneAlreadyInList = false;
+                foreach (EditorBuildSettingsScene checkScene in finalSceneList)
+                {
+                    if (buildScene.path == checkScene.path) thisSceneAlreadyInList = true;
+                    if (buildScene.path == addScenePath) newSceneAlreadyInBuildSettings = true;
+                    if (checkScene.path == addScenePath) newSceneAlreadyInBuildSettings = true;
+                }
+                // add to list
+                if (!thisSceneAlreadyInList)
+                {
+                    finalSceneList.Add(buildScene);
+                }
+            }
+
+            // if we are not already added to the list
+            if (!newSceneAlreadyInBuildSettings)
+            {   // add to the main build settings list
+                finalSceneList.Add(new EditorBuildSettingsScene(addScenePath, true));
+            }
+
+            // Set the Build Settings window Scene list
+            EditorBuildSettings.scenes = finalSceneList.ToArray();
+
+            // save in local SceneManager variable
+            SaveBuildSettingsInSceneManager();
+        }
 
 
-        //public void SaveBuildSettingsInSceneManager()
-        //{
-        //    Scene sceneManagerScene = GetSceneManagerScene();
-        //    // make sure there was a scene manager
-        //    if (!sceneManagerScene.IsValid())
-        //    {
-        //        Debug.LogError("Couldn't find SceneManager");
-        //        return;
-        //    }
-        //    // create an empty list
-        //    List<string> scenesToAdd = new List<string>();
+        protected void RemoveSceneFromBuildSettings(string sceneName)
+        {
+            // this is the final list of scenes
+            List<EditorBuildSettingsScene> editorBuildSettingsScenes = new List<EditorBuildSettingsScene>();
 
-        //    // first load in all the current scenes in the build settings
-        //    foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
-        //    {
-        //        // if this is not the manager scene
-        //        if (sceneManagerScene.path != buildScene.path)
-        //        {
-        //            // name without extension
-        //            string sceneName = System.IO.Path.GetFileNameWithoutExtension(buildScene.path);
-        //            //scenePathsToAdd.Add(buildScene.path);
-        //            scenesToAdd.Add(sceneName);
-        //        }
-        //    }
+            string unitySceneName = sceneName + ".unity";
 
-        //    // get access to the SceneManager
-        //    FungusSceneManager fungusSceneManagerScript = GetFungusSceneManagerScript();
-        //    // tell the mananger to save it's paths
-        //    fungusSceneManagerScript.SetScenes(scenesToAdd);
+            // go through each item
+            foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
+            {
+                // ignore this one
+                if (buildScene.path.EndsWith("/" + unitySceneName)) continue;
+                // add to list
+                editorBuildSettingsScenes.Add(buildScene);
+            }
 
-        //    // force save
-        //    EditorSceneManager.SaveScene(sceneManagerScene);
-        //}
+            // Set the Build Settings window Scene list
+            EditorBuildSettings.scenes = editorBuildSettingsScenes.ToArray();
 
-        //#endregion
+            // save in local SceneManager variable
+            SaveBuildSettingsInSceneManager();
+
+        }
+
+
+        public void SaveBuildSettingsInSceneManager()
+        {
+            Scene sceneManagerScene = GetSceneManagerScene();
+            // make sure there was a scene manager
+            if (!sceneManagerScene.IsValid())
+            {
+                Debug.LogError("Couldn't find SceneManager");
+                return;
+            }
+            // create an empty list
+            List<string> scenesToAdd = new List<string>();
+
+            // first load in all the current scenes in the build settings
+            foreach (EditorBuildSettingsScene buildScene in EditorBuildSettings.scenes)
+            {
+                // if this is not the manager scene
+                if (sceneManagerScene.path != buildScene.path)
+                {
+                    // name without extension
+                    string sceneName = System.IO.Path.GetFileNameWithoutExtension(buildScene.path);
+                    //scenePathsToAdd.Add(buildScene.path);
+                    scenesToAdd.Add(sceneName);
+                }
+            }
+
+            // get access to the SceneManager
+            FungusSceneManager fungusSceneManagerScript = GetFungusSceneManagerScript();
+            // tell the mananger to save it's paths
+            fungusSceneManagerScript.SetScenes(scenesToAdd);
+
+            // force save
+            EditorSceneManager.SaveScene(sceneManagerScene);
+        }
+
+        #endregion
 
 
         #region callbacks

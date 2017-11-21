@@ -41,7 +41,13 @@ namespace Fungus
 		/// If variables are persistent, reset values to default at game start
 		/// </summary>
 		[Tooltip("WARNING!! This deletes all playerPrefs.")]
-		public bool resetVariablesAtStart = true;
+        public bool resetVariablesAtStart = true;
+
+        /// <summary>
+        /// Should the SceneManager automatically turn off the audiolistener of managed scenes?
+        /// </summary>
+        [Tooltip("Should the SceneManager automatically turn off the audiolisteners of managed scenes?")]
+        public bool turnOffManagedListeners = true;
 
         /// <summary>
         /// The Main Camera used by the Manager (used for background color changes)
@@ -57,6 +63,8 @@ namespace Fungus
 
 		private Color backgroundColor = Color.gray;
         private Coroutine backgroundColorCoroutine = null;
+
+        List<Light> lights = new List<Light>();
 
         #endregion
 
@@ -98,6 +106,7 @@ namespace Fungus
 			{
 				ResetVariables();
             }
+            // get access to the manager camera
             foreach(GameObject go in this.gameObject.scene.GetRootGameObjects())
             {
                 Camera mainCamera = go.GetComponent<Camera>();
@@ -106,6 +115,16 @@ namespace Fungus
                     // get the camera in this manager
                     managerCamera = mainCamera;
                     break;
+                }
+            }
+
+            // get access to the lights
+            Light[] managerLights = FindObjectsOfType(typeof(Light)) as Light[];
+            foreach (Light managerLight in managerLights) {
+                if (managerLight.gameObject.scene == this.gameObject.scene)
+                {
+                    lights.Add(managerLight);
+                    managerLight.gameObject.SetActive(false);
                 }
             }
         }
@@ -230,7 +249,8 @@ namespace Fungus
             if (!alreadyLoaded)
             {
                 // load this scene
-                SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+                //SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+                SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
             }
 
             // remember which scene we're in
@@ -559,6 +579,15 @@ namespace Fungus
 				LoadVariables();
             }
 
+            // if this is not the SceneManager
+            if (scene != this.gameObject.scene)
+            {
+                // set this scene as the active scene
+                SceneManager.SetActiveScene(scene);
+                // turn off the audio listener
+                if (turnOffManagedListeners) TurnOffListener();
+            }
+
             // if there is a listener
             if (SceneLoaded != null)
             {
@@ -579,6 +608,24 @@ namespace Fungus
             //LoadRequestedScene();
         }
 
+
+        #endregion
+
+
+        #region Listener
+
+        void TurnOffListener()
+        {
+            // get access to the lights
+            AudioListener[] listeners = FindObjectsOfType(typeof(AudioListener)) as AudioListener[];
+            foreach (AudioListener listener in listeners)
+            {
+                if (listener.gameObject.scene != this.gameObject.scene)
+                {
+                    DestroyImmediate(listener);
+                }
+            }
+        }
 
         #endregion
 
