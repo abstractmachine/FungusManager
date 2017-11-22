@@ -54,6 +54,8 @@ namespace Fungus
             EditorSceneManager.activeSceneChanged += ActiveSceneChangedCallback;
             EditorSceneManager.newSceneCreated += SceneCreatedCallback;
 
+            EditorApplication.playModeStateChanged += PlayModeStateDidChange;
+
         }
 
 
@@ -64,6 +66,8 @@ namespace Fungus
             EditorSceneManager.sceneClosed -= SceneClosedCallback;
             EditorSceneManager.activeSceneChanged -= ActiveSceneChangedCallback;
             EditorSceneManager.newSceneCreated -= SceneCreatedCallback;
+
+            EditorApplication.playModeStateChanged -= PlayModeStateDidChange;
 
         }
 
@@ -481,7 +485,7 @@ namespace Fungus
 
         #region Loading
 
-        protected void LoadManagedScene(string scenePath, OpenSceneMode sceneMode, bool moveToTop = false)
+        protected void LoadManagedScene(string scenePath, OpenSceneMode sceneMode, bool moveToTop = false, bool isSceneManager = false)
         {
             Scene scene = EditorSceneManager.OpenScene(scenePath, sceneMode);
 
@@ -491,7 +495,10 @@ namespace Fungus
                 MoveSceneToTop(scene);
             }
 
-            SetSceneToActive(scene);
+            if (!isSceneManager)
+            {
+                SetSceneToActive(scene);
+            }
 
             CheckScenes();
         }
@@ -727,6 +734,11 @@ namespace Fungus
         }
 
         virtual protected void SceneCreatedCallback(Scene scene, NewSceneSetup setup, NewSceneMode mode)
+        {
+            CheckScenes();
+        }
+
+        virtual protected void PlayModeStateDidChange(PlayModeStateChange state)
         {
             CheckScenes();
         }

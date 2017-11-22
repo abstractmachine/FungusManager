@@ -52,6 +52,24 @@ namespace Fungus
         #endregion
 
 
+        #region Callbacks
+
+        override protected void OnEnable()
+        {
+            base.OnEnable();
+            Lightmapping.completed += LightmappingCompleted;
+        }
+
+
+        override protected void OnDisable()
+        {
+            base.OnDisable();
+            Lightmapping.completed -= LightmappingCompleted;
+        }
+
+        #endregion
+
+
         #region GUI
 
         override protected void OnGUI()
@@ -61,79 +79,113 @@ namespace Fungus
             // check to see if there is at least one scene manager in the project
             if (!projectContainsSceneManager)
             {
-                GUILayout.FlexibleSpace();
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-
-                GUILayout.BeginVertical();
-
-                if (GUILayout.Button("Create 'SceneManager'"))
-                {
-                    CreateFungusSceneManager();
-                    return;
-                }
-
-                GUILayout.EndVertical();
-
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-                GUILayout.FlexibleSpace();
+                CreateSceneManagerButton();
+                return;
             }
-            else
+
+            if (!sceneManagerIsLoaded)
             {
-                if (!sceneManagerIsLoaded)
-                {
-                    GUILayout.FlexibleSpace();
-                    GUILayout.BeginHorizontal();
-                    GUILayout.FlexibleSpace();
+                LoadSceneManagerButton();
+                return;
+            }
 
-                    GUILayout.BeginVertical();
-                    // load the SceneManager as the sole scene
-                    LoadSceneButton("SceneManager", GetSceneAssetPath("SceneManager.unity"), OpenSceneMode.Single, true);
-                    // load the SceneManager and place it on top
-                    LoadSceneButton("SceneManager", GetSceneAssetPath("SceneManager.unity"), OpenSceneMode.Additive, true);
-
-                    GUILayout.EndVertical();
-                    GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
-                    GUILayout.FlexibleSpace();
-                }
-
-                // if the scene manager is not already loaded
-                if (sceneManagerIsLoaded)
-                {
-                    DisplaySceneManager();
-                    return;
-                }
+            // if the scene manager is not already loaded
+            if (sceneManagerIsLoaded)
+            {
+                DisplaySceneManager();
+                return;
             }
 
         }
 
 
-        protected void LoadSceneButton(string sceneName, string path, OpenSceneMode openSceneMode, bool isSceneManager = false)
+        protected void CreateSceneManagerButton()
         {
-            bool moveToTop = (openSceneMode == OpenSceneMode.Additive) ? true : false;
-            string loadPrefix = (openSceneMode == OpenSceneMode.Additive) ? "Add" : "Load";
+            GUILayout.FlexibleSpace();
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button(loadPrefix + "'" + sceneName + "'"))
+            GUILayout.BeginVertical();
+
+            GUILayout.Space(10);
+
+            // Scene Manager
+
+            if (GUILayout.Button("Create 'SceneManager'"))
             {
-                LoadManagedScene(path, openSceneMode, moveToTop);
+                CreateFungusSceneManager();
+                return;
+            }
 
-                if (isSceneManager && openSceneMode == OpenSceneMode.Additive)
+            // lighting
+
+            GUILayout.Space(10);
+
+            bool previousBakeSetting = bakeLightingManually;
+            bakeLightingManually = GUILayout.Toggle(bakeLightingManually, "Manually Bake Lighting");
+
+            // did we change?
+            if (bakeLightingManually != previousBakeSetting)
+            {
+                if (bakeLightingManually) SetBakeToManual();
+                else SetBakeToAuto();
+            }
+
+            GUILayout.EndVertical();
+
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUILayout.FlexibleSpace();
+        }
+
+
+        protected void LoadSceneManagerButton() 
+        {
+            GUILayout.FlexibleSpace();
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            GUILayout.BeginVertical();
+
+            // if we've pushed the button
+            if (GUILayout.Button("Load 'SceneManager'"))
+            {
+                OpenSceneMode openSceneMode = OpenSceneMode.Single;
+
+                // go through each loaded scene
+                for (int i = 0; i < EditorSceneManager.sceneCount; i++)
                 {
-                    for (int i = 0; i < EditorSceneManager.sceneCount; i++)
+                    // get this scene
+                    Scene editorScene = EditorSceneManager.GetSceneAt(i);
+                    // if this is the scene manager move on
+                    if (editorScene.name == "SceneManager") continue;
+                    // now check to see if this is one of the managed scenes
+                    foreach (EditorBuildSettingsScene buildSettingsScene in EditorBuildSettings.scenes)
                     {
-                        Scene scene = EditorSceneManager.GetSceneAt(i);
-                        if (scene.name != sceneName)
+                        // is this indeed one of the managed scenes?
+                        if (editorScene.path == buildSettingsScene.path)
                         {
-                            EditorSceneManager.SetActiveScene(scene);
+                            // set the flag
+                            openSceneMode = OpenSceneMode.Additive;
+                            // no need to check the others
                             break;
                         }
+                        // if
                     }
+                    // foreach(BuildSettingsScene
                 }
+                // for (EditorSceneManager
+
+                // load the scene into the hierarchy
+                LoadManagedScene(GetSceneAssetPath("SceneManager.unity"), openSceneMode, true, true);
 
                 return;
             }
+
+            GUILayout.EndVertical();
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+            GUILayout.FlexibleSpace();
         }
 
 
@@ -157,8 +209,10 @@ namespace Fungus
                 else SetBakeToAuto();
             }
 
+            // do we bake lighting manually (through this button) or automatically (off)?
             if (bakeLightingManually)
             {
+                // start the bake process
                 if (GUILayout.Button("Bake Scenes", GUILayout.ExpandWidth(false)))
                 {
                     BakeAllScenes();
@@ -278,8 +332,10 @@ namespace Fungus
 
         protected void BakeAllScenes()
         {
-            SetBakeToManual();
+            // close all open scenes
+            CloseOpenScenes();
 
+            SetBakeToManual();
             // force save
             EditorSceneManager.SaveScene(GetSceneManagerScene());
             // start baking everything
@@ -287,23 +343,46 @@ namespace Fungus
         }
 
 
-        protected void UnfoldScenesInHierarchy()
+        void LightmappingCompleted()
         {
-            // unfold the scenes in the heirarchy
-            for (int i = 0; i < EditorSceneManager.sceneCount; i++)
+        }
+
+
+        /// <summary>
+        /// This is purely a cosmetic feature. After baking all scenes,
+        /// the scene foldouts are folded in the hierarchy view. This unfolds them
+        /// </summary>
+        void UnfoldScenesInHierarchy()
+        {
+            CloseOpenScenes();
+
+            // get access to the hierarchy
+            EditorApplication.ExecuteMenuItem("Window/Hierarchy");
+            EditorWindow hierarchy = EditorWindow.focusedWindow;
+
+            // go through each scene in the hierarchy
+            for (int i = EditorSceneManager.sceneCount-1; i >= 0; i--)
             {
                 // get this scene
                 Scene scene = EditorSceneManager.GetSceneAt(i);
-                GameObject[] rootObjects = scene.GetRootGameObjects();
-                // make sure there are some game objects
-                if (rootObjects.Length == 0) continue;
-
-                // unfold all the scene triangles
-                EditorApplication.ExecuteMenuItem("Window/Hierarchy");
-                EditorWindow hierarchy = EditorWindow.focusedWindow;
-                Selection.activeObject = rootObjects[0];
-                hierarchy.SendEvent(new Event { keyCode = KeyCode.RightArrow, type = EventType.keyDown });
+                UnfoldScene(hierarchy, scene);
             }
+        }
+
+
+        void UnfoldScene(EditorWindow hierarchy, Scene scene)
+        { 
+            // get this scene's root objects
+            GameObject[] rootObjects = scene.GetRootGameObjects();
+            // make sure there are some game objects
+            if (rootObjects.Length == 0) return;
+            // select the first root object
+            Selection.activeObject = rootObjects[0];
+            // unfold the object triangle
+            hierarchy.SendEvent(new Event { keyCode = KeyCode.UpArrow, type = EventType.keyDown });
+            hierarchy.SendEvent(new Event { keyCode = KeyCode.RightArrow, type = EventType.keyDown });
+            // unselect object
+            Selection.activeObject = null;
         }
 
         #endregion
@@ -425,6 +504,8 @@ namespace Fungus
             SetSceneToActive(sceneManagerScene);
             MoveSceneToTop(sceneManagerScene);
 
+            if (bakeLightingManually) BakeAllScenes();
+
             CheckScenes();
 
         }
@@ -482,11 +563,6 @@ namespace Fungus
 
             SetSceneToActive(newScene);
 
-            if (bakeLightingManually)
-            {
-                BakeAllScenes();
-            }
-
             CheckScenes();
         }
 
@@ -500,11 +576,25 @@ namespace Fungus
 
         void CreateHyperzoom(Scene newScene)
         {
+            // go through all the current cameras
+            for (int i = Camera.allCamerasCount-1; i >= 0; i--)
+            {
+                // check each one
+                Camera thisCamera = Camera.allCameras[i];
+                // if this camera is in our scene
+                if (thisCamera.gameObject.scene == newScene)
+                {
+                    // destroy the default camera
+                    DestroyImmediate(thisCamera.gameObject);
+                }
+            }
+
             GameObject camerasPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/Cameras.prefab", typeof(GameObject));
             GameObject camerasGameObject = PrefabUtility.InstantiatePrefab(camerasPrefab, newScene) as GameObject;
 
             // get access to the main camera
             GameObject mainCameraGameObject = camerasGameObject.transform.Find("Main").gameObject;
+
             // get access to the hyperzoom child
             GameObject hyperzoomGameObject = camerasGameObject.transform.Find("Hyperzoom").gameObject;
 
@@ -530,7 +620,10 @@ namespace Fungus
             // set the background object
             GameObject backgroundPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Assets/Hyperzoom/Prefabs/Background.prefab", typeof(GameObject));
             GameObject backgroundGameObject = PrefabUtility.InstantiatePrefab(backgroundPrefab, newScene) as GameObject;
+            // set it's name
             backgroundGameObject.name = "Background";
+            // attach it to the cameras object
+            backgroundGameObject.transform.SetParent(camerasGameObject.transform);
             // set the canvas on this background object to the main camera (this is due to a unity bug: cf. http://bit.ly/2hHfOaF)
             Canvas backgroundCanvas = backgroundGameObject.GetComponent<Canvas>();
             backgroundCanvas.renderMode = RenderMode.ScreenSpaceCamera;
@@ -658,7 +751,7 @@ namespace Fungus
                     UpdateLoadedSceneList();
 
                     string path = GetSceneAssetPath(sceneName + ".unity");
-                    LoadManagedScene(path, OpenSceneMode.Additive, false);
+                    LoadManagedScene(path, OpenSceneMode.Additive, false, false);
                 }
             }
 
