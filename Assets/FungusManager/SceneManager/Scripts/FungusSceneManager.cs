@@ -46,8 +46,8 @@ namespace Fungus
         /// <summary>
         /// Should the SceneManager automatically turn off the audiolistener of managed scenes?
         /// </summary>
-        [Tooltip("Should the SceneManager automatically turn off the audiolisteners of managed scenes?")]
-        public bool turnOffManagedListeners = true;
+        //[Tooltip("Should the SceneManager automatically turn off the audiolisteners of managed scenes?")]
+        //public bool turnOffManagedListeners = true;
 
         /// <summary>
         /// The Main Camera used by the Manager (used for background color changes)
@@ -585,7 +585,7 @@ namespace Fungus
                 // set this scene as the active scene
                 SceneManager.SetActiveScene(scene);
                 // turn off the audio listener
-                if (turnOffManagedListeners) TurnOffListener();
+                //if (turnOffManagedListeners) TurnOffListener();
             }
 
             // if there is a listener
@@ -607,7 +607,6 @@ namespace Fungus
             //Debug.Log("SceneManagerUnloadedScene " + scene.name);
             //LoadRequestedScene();
         }
-
 
         #endregion
 
