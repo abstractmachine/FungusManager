@@ -379,8 +379,8 @@ namespace Fungus
             // select the first root object
             Selection.activeObject = rootObjects[0];
             // unfold the object triangle
-            hierarchy.SendEvent(new Event { keyCode = KeyCode.UpArrow, type = EventType.keyDown });
-            hierarchy.SendEvent(new Event { keyCode = KeyCode.RightArrow, type = EventType.keyDown });
+            hierarchy.SendEvent(new Event { keyCode = KeyCode.UpArrow, type = EventType.KeyDown });
+            hierarchy.SendEvent(new Event { keyCode = KeyCode.RightArrow, type = EventType.KeyDown });
             // unselect object
             Selection.activeObject = null;
         }

@@ -46,8 +46,8 @@ namespace Fungus
         /// <summary>
         /// Should the SceneManager automatically turn off the audiolistener of managed scenes?
         /// </summary>
-        //[Tooltip("Should the SceneManager automatically turn off the audiolisteners of managed scenes?")]
-        //public bool turnOffManagedListeners = true;
+        [Tooltip("Should the SceneManager automatically turn off the audiolisteners of managed scenes?")]
+        public bool turnOffManagedListeners = true;
 
         /// <summary>
         /// The Main Camera used by the Manager (used for background color changes)
@@ -172,6 +172,7 @@ namespace Fungus
 
 
         #region Load
+
 
         void RequestNextScene(string sceneName)
         {
@@ -474,14 +475,55 @@ namespace Fungus
             }
 
         }
-        // DisableEventSystems()
+		// DisableEventSystems()
 
-        #endregion
+		#endregion
 
 
-        #region Scene Changes
+		#region Scene Verification
 
-        public void ZoomInStarted(string objectName)
+		public string GetRequestedScene()
+		{
+			return requestedScene;
+		}
+
+
+		public bool HasRequestedScene()
+		{
+			return requestedScene.Length > 0;
+		}
+
+
+		public bool RequestedSceneIsValid()
+		{
+			// first check to see if there is a requested scene
+			if (!HasRequestedScene()) return false;
+			// now check to see if it's valid
+			return IsValidScene(requestedScene);
+		}
+
+
+		public bool IsValidScene(string newSceneName)
+		{
+			// now check all scenes to see if this is a valid scene
+			for (int i = 0; i < SceneManager.sceneCount; ++i)
+			{
+				// get this scene
+				Scene scene = SceneManager.GetSceneAt(i);
+				// if this is the manager scene, move on to next scene in the list
+				if (scene == this.gameObject.scene) continue;
+				// if this scene exists, return ok
+				if (scene.name == newSceneName) return true;;
+			}
+			return false;
+		}
+
+		#endregion
+
+
+		#region Scene Changes
+
+		public void ZoomInStarted(string objectName)
         {
             // if there is a listener
             if (ZoomedIn != null)
@@ -585,7 +627,7 @@ namespace Fungus
                 // set this scene as the active scene
                 SceneManager.SetActiveScene(scene);
                 // turn off the audio listener
-                //if (turnOffManagedListeners) TurnOffListener();
+                if (turnOffManagedListeners) TurnOffListener();
             }
 
             // if there is a listener
@@ -607,6 +649,7 @@ namespace Fungus
             //Debug.Log("SceneManagerUnloadedScene " + scene.name);
             //LoadRequestedScene();
         }
+
 
         #endregion
 
